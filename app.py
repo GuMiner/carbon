@@ -14,10 +14,12 @@ socketio = SocketIO(app)
 base.SOCKETIO = socketio
 
 # Must be imported later so that 'base.APP' is not None
-from pages import attributions
+from pages import attributions, blog, stats
 
 Compress(app)
 app.register_blueprint(attributions.attributions)
+app.register_blueprint(blog.blog)
+app.register_blueprint(stats.stats)
 
 # Used by all pages for the ©️ text.
 @app.context_processor

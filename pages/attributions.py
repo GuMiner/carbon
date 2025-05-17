@@ -1,6 +1,5 @@
 
 from dataclasses import dataclass
-from typing import List
 from flask import Blueprint, render_template
 
 attributions = Blueprint('attributions', __name__, url_prefix='/attributions', template_folder='../templates/attributions')
@@ -31,5 +30,5 @@ attributionSet = {
 }
 
 @attributions.route("/")
-def attributions_page():
+def index():
     return render_template("attributions.html", attributions=attributionSet)
