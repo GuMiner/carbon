@@ -1,0 +1,16 @@
+# Python
+## Python cache files
+__pycache__/
+
+## Environment
+.venv
+
+# Node
+## Imports
+node_modules
+
+# -------------
+# Generated files
+scss/gen/
+static/gen/
+package-lock.json

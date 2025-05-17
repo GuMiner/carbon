@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+
+    {% include "_icons.html" %}
+
+    <meta name="google-site-verification" content="cScukpQX-5ha2CjIpVu6s6-AJACov7BwotGqxVDyjLE" />
+    <meta name="msvalidate.01" content="54833F3A9AB9EF94EABEF305F306DFED" />
+
+    <link rel="stylesheet" href="/static/gen/index.css">
+    {% block css %}
+    {% endblock css %}
+
+    <title>Helium24</title>
+  </head>
+  <body>
+    <main class="container">
+      <nav>
+        <ul>
+          <li><a class="nav-border" href="{{ url_for('index') }}"><strong>Helium</strong></a></li>
+        </ul>
+        <ul>
+          <li><a class="nav-border" href=" url_for('projects.index') }}">Projects</a></li>
+          <li><a class="nav-border" href="url_for('puzzles.puzzles_page') }}">Live Status</a></li>
+          <li><a class="nav-border" href=" url_for('games.index')}}">Statistics</a></li>
+          <li></li>
+          <li><button type="button" id="themeToggle" onclick="toggleTheme()">- Mode</button></li>
+        </ul>
+      </nav>
+      {% block content %}
+      {% endblock content %}
+    </main>
+    <footer>
+      <hr/>
+      <p>
+        ©️ {{year}} Gustave Granroth
+      </p>
+    </footer>
+    {% block scripts %}{% endblock scripts %}
+    <script type="text/javascript" src="/static/gen/index.js"></script>
+  </body>
+</html>

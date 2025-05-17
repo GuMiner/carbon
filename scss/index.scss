@@ -1,0 +1,10 @@
+@use "../node_modules/@picocss/pico/scss/pico";
+
+// Basic border to make the nav area more visible
+.nav-border {
+  border-style: outset;
+  border-width: 2px;
+  border-color: #bababa;
+  border-radius: 12px;
+  margin-left: 6px;
+}
