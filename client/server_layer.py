@@ -9,6 +9,9 @@ import time
 
 send_command_lock = threading.Lock()
 
+SERVER_URL = 'https://helium24.net/carbon/projects/mc_server/player'
+JAVA_PATH = 'C:\\Program Files\\Microsoft\\jdk-21.0.7.6-hotspot\\bin\\java.exe'
+
 def _send_command(command: str, process: subprocess.Popen):
     with send_command_lock:
         print(command)
@@ -17,8 +20,7 @@ def _send_command(command: str, process: subprocess.Popen):
 
 
 def _send_player_data(name, position):
-    url = 'https://helium24.net/carbon/mc_server/player'
-    response = requests.post(url, json={'name': name, 'position': position})
+    response = requests.post(SERVER_URL, json={'name': name, 'position': position})
     if response.status_code == 200:
         print(f"Player data sent successfully: {response.text}")
     else:
@@ -86,12 +88,10 @@ def send_data(process: subprocess.Popen):
 
 
 def run_game():
-    java_path = 'C:\\Program Files\\Microsoft\\jdk-21.0.7.6-hotspot\\bin\\java.exe'
-    
     # Run the server, redirecting input and output
     print("Starting process...")
     process = subprocess.Popen([
-        java_path,
+        JAVA_PATH,
         '-XX:+UseZGC', '-XX:+ZGenerational', '-Xmx4096M', '-Xms4096M',
         '-jar', 'server.jar', 'nogui'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)  
     

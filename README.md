@@ -30,14 +30,15 @@ npm install -g sass
 ## Development
 ```bash
 sass scss/index.scss scss/index.css
-esbuild js/index.ts --bundle --outdir=static --sourcemap
+esbuild js/index.ts --bundle --outdir=static/gen --sourcemap
+esbuild js/mc.ts --bundle --outdir=static/gen --sourcemap
 
 flask --debug run
 ```
 
 ## Production release
 ```bash
-esbuild js/index.ts --bundle --outdir=static --minify
+esbuild js/index.ts --bundle --outdir=static/gen --minify
 ```
 
 See `Setup.md` for more details on the production server setup.
