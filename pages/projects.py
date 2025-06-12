@@ -1,5 +1,6 @@
 
 from flask import Blueprint, render_template, request, g
+import os
 import sqlite3
 import threading
 from . import base
@@ -30,6 +31,7 @@ def index():
 def mc_server():
     return render_template("mc_server.html")
 
+# Update a player's position in the in-memory dictionary
 @projects.route("/mc_server/player", methods=['POST'])
 def mc_server_player_update():
     data = request.get_json()
@@ -39,7 +41,16 @@ def mc_server_player_update():
         player_pos_live_map[name] = position
     return "Ok"
 
+# Save a map file uploaded 
+@projects.route("/mc_server/map", methods=['POST'])
+def mc_server_map_update():
+    if 'mapFile' in request.files:
+        file = request.files['mapFile']
+        if file and file.filename == 'map.png':
+            file.save(os.path.join(base.APP.config['UPLOAD_FOLDER'], 'map.png'))
+    return "Ok"
 
+# HTML: List out where everyone is
 @projects.route("/mc_server/players")
 def mc_server_players():
     player_pos_text = ["<ul>"]

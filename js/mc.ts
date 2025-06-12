@@ -89,3 +89,11 @@ const container = document.getElementById('container');
 
   // Initial draw
   drawGrid();
+
+function updateImage()
+{
+  var map = document.getElementById("map") as HTMLImageElement;
+  // TODO -- auto-update image
+}
+
+setTimeout(updateImage, 1000 * 60 * 4); // Update every four minutes

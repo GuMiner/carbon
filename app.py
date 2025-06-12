@@ -1,4 +1,5 @@
 import datetime
+import os
 from werkzeug import exceptions
 from flask import Flask, render_template
 from flask_socketio import SocketIO
@@ -10,6 +11,9 @@ base.APP = app  # Allows for blueprints to access and use the app instance.
 
 app.config['SECRET_KEY'] = {'UNUSED'}
 app.config['EXPLAIN_TEMPLATE_LOADING'] = False # Enable if pages render odd
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'upload')
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1000 * 1000 # 50 MB
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 180 # 3 minutes for the MC server images
 socketio = SocketIO(app)
 base.SOCKETIO = socketio
 

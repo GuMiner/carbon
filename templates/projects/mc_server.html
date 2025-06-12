@@ -3,20 +3,13 @@
 {% block content %}
 <h4>Map</h4>
 <h5>Players</h5>
-<div hx-get="{{ url_for('projects.mc_server_players') }}" hx-trigger="every 15s" hx-indicator="#playersIndicator"></div>
+<div hx-get="{{ url_for('projects.mc_server_players') }}" hx-trigger="load, every 15s" hx-indicator="#playersIndicator"></div>
 <div id="playersIndicator" aria-busy="true" class="htmx-indicator">Loading...</div>
-<!--<div class="controls">
-  <label for="gridSize">Grid Size:</label>
-  <input type="number" id="gridSize" value="10" min="1">
 
-  <label for="pixelSize">Pixel Size (px):</label>
-  <input type="number" id="pixelSize" value="20" min="1">
-
-  <button onclick="drawGrid()">Redraw Grid</button>
+<!-- TODO -- render player positions on map and make movable -->
+<div id="map_container">
+  <img id="map" src="{{ url_for('static', filename='upload/map.png') }}" alt="Minecraft top-down map"/>
 </div>
-<div id="container">
-  <canvas id="pixelCanvas"></canvas>
-</div>-->
 {% endblock content %}
 
 {% block scripts %}

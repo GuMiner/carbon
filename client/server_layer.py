@@ -1,5 +1,6 @@
 # server-layer.py
 # The wrapper over the MC server to periodically send data to the internet (Carbon)
+import os
 import re
 import requests
 import subprocess
@@ -9,8 +10,17 @@ import time
 
 send_command_lock = threading.Lock()
 
-SERVER_URL = 'https://helium24.net/carbon/projects/mc_server/player'
+_TESTING_URL = 'http://127.0.0.1:5000/projects/mc_server'
+_BASE_URL = 'https://helium24.net/carbon/projects/mc_server'
+SERVER_PLAYER_URL = f'{_TESTING_URL}/player'
+SERVER_MAP_URL = f'{_TESTING_URL}/map'
+
 JAVA_PATH = 'C:\\Program Files\\Microsoft\\jdk-21.0.7.6-hotspot\\bin\\java.exe'
+MAP_EXPORTER_PATH = 'C:\\Users\\gusgr\\Desktop\\Games\\Minecraft\\unmined-cli_0.19.49-dev_win-64bit\\unmined-cli.exe'
+WORLD_PATH = 'C:\\Users\\gusgr\\Desktop\\Games\\Minecraft\\world-packtest'
+IMAGE_PATH = 'C:\\Users\\gusgr\\Desktop\\Games\\Minecraft\\map.png'
+
+IS_ALIVE = True
 
 def _send_command(command: str, process: subprocess.Popen):
     with send_command_lock:
@@ -20,16 +30,27 @@ def _send_command(command: str, process: subprocess.Popen):
 
 
 def _send_player_data(name, position):
-    response = requests.post(SERVER_URL, json={'name': name, 'position': position})
+    response = requests.post(SERVER_PLAYER_URL, json={'name': name, 'position': position})
     if response.status_code == 200:
         print(f"Player data sent successfully: {response.text}")
     else:
         print(f"Failed to send player data: {response.status_code} {response.text}")
 
 
+def _send_map_data(map_file_name):
+    with open(map_file_name, "rb") as f:
+        files = {
+            "mapFile": ("map.png", f, "image/png")
+        }
+        response = requests.post(SERVER_MAP_URL, files=files)
+        if response.status_code == 200:
+            print(f"Player data sent successfully: {response.text}")
+        else:
+            print(f"Failed to send player data: {response.status_code} {response.text}")
+
 
 def read_server_data(process: subprocess.Popen):
-    while process.poll() is None:
+    while process.poll() is None and IS_ALIVE:
         # print("Waiting for data to read...")
         output = process.stdout.readline().decode()  # type: ignore
         print(output.strip())
@@ -59,7 +80,7 @@ def read_server_data(process: subprocess.Popen):
 
 
 def query_server(process: subprocess.Popen):
-    while process.poll() is None:
+    while process.poll() is None and IS_ALIVE:
         time.sleep(10)
         _send_command("/list", process)
         _send_command('/data get entity GuMiner Pos', process)
@@ -67,21 +88,52 @@ def query_server(process: subprocess.Popen):
         _send_command('/data get entity SolarThor Pos', process)
 
 
+def _process_map_update(result):
+    # Determine map extent from the exported output text, send that in a separate request
+    print("Stdout: ", result.stdout)
+    print("Stderr: ", result.stderr)
+    if os.path.exists(IMAGE_PATH):
+        _send_map_data(IMAGE_PATH)
+    pass
+
+
+def update_map():
+    map_update_counter = 0
+    while IS_ALIVE:
+        if map_update_counter <= 0:  # About every 5 minutes and upon startup
+            map_update_counter = 60
+
+            if os.path.exists(IMAGE_PATH):
+                os.remove(IMAGE_PATH)
+            result = subprocess.run([MAP_EXPORTER_PATH, 'image', 'render', '-c',
+                                     f'--world={WORLD_PATH}', f'--output={IMAGE_PATH}'], capture_output=True, text=True)
+            _process_map_update(result)
+
+        map_update_counter -= 1
+        time.sleep(5)
+
+
 def send_data(process: subprocess.Popen):
+    global IS_ALIVE
+
     read_thread = threading.Thread(target=read_server_data, args=(process,))
     read_thread.start()
 
     query_thread = threading.Thread(target=query_server, args=(process,))
     query_thread.start()
 
+    map_thread = threading.Thread(target=update_map)
+    map_thread.start()
 
-    while process.poll() is None:
+    while process.poll() is None and IS_ALIVE:
         user_control = sys.stdin.readline().strip()
-        if user_control == "quit":
+        if user_control == "quit" or user_control == "/stop":
             print("Stopping server...")
             _send_command('/stop', process)
+            IS_ALIVE = False
             read_thread.join()
             query_thread.join()
+            map_thread.join()
             break
         else:
             _send_command(user_control, process)
