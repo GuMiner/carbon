@@ -1,98 +1,107 @@
 import 'htmx.org';
 
-const container = document.getElementById('container');
-  const canvas = document.getElementById('pixelCanvas');
-  const ctx = canvas.getContext('2d');
-  const gridSizeInput = document.getElementById('gridSize');
-  const pixelSizeInput = document.getElementById('pixelSize');
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d")!;
+ctx.imageSmoothingEnabled= false
+const image = new Image();
+image.onload = () => draw();
+image.src = "../static/upload/map.png"
 
-  let gridSize = parseInt(gridSizeInput.value);
-  let pixelSize = parseInt(pixelSizeInput.value);
-  let gridData = Array(gridSize * gridSize).fill(0);
+let offsetX = 0;
+let offsetY = 0;
+let scale = 1;
+let isDragging = false;
+let lastX = 0;
+let lastY = 0;
 
-  let isDragging = false;
-  let offsetX, offsetY;
+canvas.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  lastX = e.offsetX;
+  lastY = e.offsetY;
+});
 
-  function updateCanvasSize() {
-    canvas.width = gridSize * pixelSize;
-    canvas.height = gridSize * pixelSize;
+canvas.addEventListener("mousemove", (e) => {
+  if (isDragging) {
+    offsetX += e.offsetX - lastX;
+    offsetY += e.offsetY - lastY;
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+    draw();
   }
+});
 
-  function drawPixel(row, col, isSet) {
-    ctx.fillStyle = isSet ? 'black' : 'white';
-    ctx.fillRect(col * pixelSize, row * pixelSize, pixelSize, pixelSize);
-  }
+canvas.addEventListener("mouseup", () => (isDragging = false));
+canvas.addEventListener("mouseout", () => (isDragging = false));
 
-  function drawGrid() {
-    gridSize = parseInt(gridSizeInput.value);
-    pixelSize = parseInt(pixelSizeInput.value);
-    gridData = Array(gridSize * gridSize).fill(0);
-    for (let i = 0; i < gridSize * gridSize; i ++) {
-        // Randomize gridData
-        gridData[i] = Math.random() > 0.5 ? 1 : 0;
-    }
-    updateCanvasSize();
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 1.1 : 0.9;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
 
-    for (let i = 0; i < gridSize; i++) {
-      for (let j = 0; j < gridSize; j++) {
-        drawPixel(i, j, gridData[i * gridSize + j]);
-      }
-    }
-  }
+  offsetX = mx - (mx - offsetX) * delta;
+  offsetY = my - (my - offsetY) * delta;
+  scale *= delta;
+  draw();
+});
 
-  function setPixel(row, col, value) {
-    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
-      gridData[row * gridSize + col] = value;
-      drawPixel(row, col, value);
-    }
-  }
-
-  canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 1) {
     isDragging = true;
-    canvas.style.cursor = 'grabbing';
-    offsetX = e.clientX - canvas.getBoundingClientRect().left;
-    offsetY = e.clientY - canvas.getBoundingClientRect().top;
-  });
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+  }
+});
 
-  document.addEventListener('mouseup', () => {
+canvas.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 1 && isDragging) {
+    const touch = e.touches[0];
+    offsetX += touch.clientX - lastX;
+    offsetY += touch.clientY - lastY;
+    lastX = touch.clientX;
+    lastY = touch.clientY;
+    draw();
+  } else if (e.touches.length === 2) {
     isDragging = false;
-    canvas.style.cursor = 'grab';
-  });
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
-  document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
+    if ((window as any).lastDist) {
+      const scaleDelta = distance / (window as any).lastDist;
+      scale *= scaleDelta;
 
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+      const my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
 
-    canvas.style.left = x + 'px';
-    canvas.style.top = y + 'px';
-    canvas.style.position = 'absolute'; // Ensure it can be positioned freely
-  });
+      offsetX = mx - (mx - offsetX) * scaleDelta;
+      offsetY = my - (my - offsetY) * scaleDelta;
 
-  canvas.addEventListener('click', (event) => {
-    //if (isDragging) return; // Don't process clicks if dragging
-
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left - parseFloat(canvas.style.left || 0);
-    const y = event.clientY - rect.top - parseFloat(canvas.style.top || 0);
-
-    const col = Math.floor(x / pixelSize);
-    const row = Math.floor(y / pixelSize);
-
-    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
-      const index = row * gridSize + col;
-      gridData[index] = gridData[index] === 0 ? 1 : 0;
-      drawPixel(row, col, gridData[index]);
+      draw();
     }
-  });
 
-  // Initial draw
-  drawGrid();
+    (window as any).lastDist = distance;
+  }
+});
+
+canvas.addEventListener("touchend", () => {
+  isDragging = false;
+  (window as any).lastDist = null;
+});
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+}
+
+
 
 function updateImage()
 {
-  var map = document.getElementById("map") as HTMLImageElement;
+  
   // TODO -- auto-update image
 }
 

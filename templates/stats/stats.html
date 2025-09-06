@@ -1,11 +1,17 @@
 {% extends '_base.html' %}
 
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='gen/stats.css') }}">
+{% endblock css %}
+
 {% block content %}
 <h1>Stats</h1>
-<p>
+<p clas>
     Stats will go here!
 </p>
+<div id="chart" class="ct-perfect-fourth chart-background"></div>
 {% endblock content %}
 
 {% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='gen/stats.js') }}"></script>
 {% endblock scripts %}

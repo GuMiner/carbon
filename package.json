@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@picocss/pico": "2.1.1",
+    "chartist": "^1.4.0",
     "htmx.org": "1.9.12",
     "katex": "0.16.22",
     "socket.io-client": "4.8.1"
