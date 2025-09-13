@@ -77,22 +77,25 @@ float sphereSDF(vec3 p, float r) {
   return length(p) - r;
 }
 
+const int NUM_SPHERES = 12;
+
 float scene(vec3 p) {
-  // Time-based rotation around Y-axis
   float angle = u_time * 0.5;
   mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+  
+  mat2 rot2 = mat2(cos(-angle), -sin(-angle), sin(-angle), cos(-angle));
 
-  // First sphere: rotates around Y
-  vec3 p1 = p - vec3(-1.5, 0.0, -3.0);
-  p1.xz = rot * p1.xz;
-  float d1 = sphereSDF(p1, 1.0);
+  float minDist = 100.0;
 
-  // Second sphere: rotates in opposite direction
-  vec3 p2 = p - vec3(1.5, 0.0, -3.0);
-  p2.xz = rot * p2.xz; // You can reverse rotation for contrast
-  float d2 = sphereSDF(p2, 1.0);
+  for (int i = 0; i < NUM_SPHERES; i++) {
+    float theta = float(i) / float(NUM_SPHERES) * 6.28318; // full circle
+    vec3 center = vec3(cos(theta), float(i) / 6.0, sin(theta)) * 1.5; // radius
+    center.xz = (i % 2 == 0 ? rot : rot2) * center.xz; // orbit around origin
+    float d = sphereSDF(p - center, 0.6); // smaller radius
+    minDist = min(minDist, d);
+  }
 
-  return min(d1, d2); // Combine both spheres
+  return minDist;
 }
 
 vec3 getNormal(vec3 p) {
@@ -119,7 +122,7 @@ vec3 raymarch(vec3 ro, vec3 rd) {
       vec3 reflectDir = reflect(-lightDir, n);
       float spec = pow(max(dot(rd, reflectDir), 0.0), 32.0);
 
-      vec3 baseColor = vec3(0.6, 0.8, 1.0); // Glass tint
+      vec3 baseColor = vec3(0.6 + 0.4 * sin(p.x), 0.8 + 0.2 * cos(p.z), 1.0);
       vec3 lighting = ambientColor + diff * lightColor + spec * lightColor;
 
       vec3 refracted = refract(rd, n, 1.0 / 1.5);
@@ -134,10 +137,31 @@ vec3 raymarch(vec3 ro, vec3 rd) {
 
 void main() {
   vec2 uv = (gl_FragCoord.xy - u_resolution * 0.5) / u_resolution.y;
-  vec3 ro = vec3(0.0, 0.0, 0.0);
-  vec3 rd = normalize(vec3(uv, -1.0));
-  vec3 color = raymarch(ro, rd);
+  vec3 ro = vec3(0.2, 2.0, 3.0); // Camera position
+  vec3 target = vec3(0.0, 0.0, 0.0); // Look-at point
+
+  // Compute camera basis
+  vec3 forward = normalize(target - ro);
+  vec3 right = normalize(cross(forward, vec3(0.0, 1.0, 0.0)));
+  vec3 up = cross(right, forward);
+
+  vec3 rd = normalize(uv.x * right + uv.y * up + forward);
+
+  vec3 color = vec3(0.0);
+  int samples = 4;
+
+  for (int i = 0; i < samples; i++) {
+    for (int j = 0; j < samples; j++) {
+      vec2 jitter = vec2(float(i), float(j)) / float(samples) - 0.5;
+      vec2 offsetUV = uv + jitter / u_resolution.y;
+      vec3 rd = normalize(offsetUV.x * right + offsetUV.y * up + forward);
+      color += raymarch(ro, rd);
+    }
+  }
+
+  color /= float(samples * samples);
   outColor = vec4(color, 1.0);
+
 }
 `;
 
