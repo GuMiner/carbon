@@ -1,5 +1,9 @@
 {% extends '_base.html' %}
 
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='gen/mc.css') }}">
+{% endblock css %}
+
 {% block content %}
 <h4>Map</h4>
 <h5>Players</h5>
@@ -8,7 +12,7 @@
 
 <!-- TODO -- render player positions on map and make movable -->
 <div id="map_container">
-  <canvas id="canvas" width="800" height="600" style="border:1px solid black;" alt="Minecraft top-down map"></canvas>
+  <canvas id="canvas" width="800" height="600" class="mc-canvas" alt="Minecraft top-down map"></canvas>
   <!--<img id="map" src="{{ url_for('static', filename='upload/map.png') }}"/>-->
 </div>
 {% endblock content %}

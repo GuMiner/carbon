@@ -30,6 +30,7 @@ npm install -g sass
 ## Development
 ```bash
 sass scss/index.scss scss/gen/index.css
+sass scss/mc.scss scss/gen/mc.css
 sass scss/stats.scss scss/gen/stats.css
 esbuild js/index.ts --bundle --outdir=static/gen --sourcemap
 esbuild js/mc.ts --bundle --outdir=static/gen --sourcemap

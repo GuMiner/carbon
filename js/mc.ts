@@ -1,11 +1,16 @@
+import "../scss/gen/mc.css";
 import 'htmx.org';
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
-ctx.imageSmoothingEnabled= false
+ctx.imageSmoothingEnabled = false;
+
 const image = new Image();
 image.onload = () => draw();
 image.src = "../static/upload/map.png"
+
+// Resize on window change
+window.addEventListener('resize', draw);
 
 let offsetX = 0;
 let offsetY = 0;
@@ -92,6 +97,9 @@ canvas.addEventListener("touchend", () => {
 });
 
 function draw() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
