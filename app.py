@@ -4,16 +4,63 @@ from werkzeug import exceptions
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from flask_compress import Compress
+import flask_login
 from pages import base
 
 app = Flask(__name__)
 base.APP = app  # Allows for blueprints to access and use the app instance.
 
+# TODO -- change this before release
+app.secret_key = 'super secret strings' 
 app.config['SECRET_KEY'] = {'UNUSED'}
+
 app.config['EXPLAIN_TEMPLATE_LOADING'] = False # Enable if pages render odd
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'upload')
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1000 * 1000 # 50 MB
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 180 # 3 minutes for the MC server images
+
+login_manager = flask_login.LoginManager()
+
+login_manager.init_app(app)
+
+class User():
+    def is_active(self):
+        return True
+    def is_authenticated(self):
+        return True
+    
+    def is_anonymous(self):
+        return False
+    
+    def get_id(self):
+        return '123'
+
+users = {}
+
+@login_manager.user_loader
+def user_loader(user_name):
+    if user_name not in users:
+        return
+
+    user = User()
+    print(user)
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    user_name = request.form.get('user_name')
+    if user_name not in users:
+        return
+
+    user = User()
+    print(user)
+    return user
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized', 401
+
 socketio = SocketIO(app)
 base.SOCKETIO = socketio
 

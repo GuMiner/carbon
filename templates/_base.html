@@ -20,11 +20,13 @@
     <main class="container">
       <nav>
         <ul>
-          <li><a class="nav-border" href="{{ url_for('index') }}"><strong>Carbon</strong></a></li>
+          <li><a href="{{ url_for('index') }}"><strong>Carbon</strong></a></li>
         </ul>
         <ul>
-          <li><a class="nav-border" href="{{ url_for('projects.index') }}">Projects</a></li>
-          <li><a class="nav-border" href="{{ url_for('stats.index') }}">Live Status</a></li>
+          <li><b><a class="nav-border" href="{{ url_for('projects.index') }}">Login/Register</a></b></li>
+          <li></li>
+          <li></li>
+          <li><a class="nav-border" href="{{ url_for('stats.index') }}">Stats</a></li>
           <li><a class="nav-border" href="{{ url_for('blog.index')}}">Blog</a></li>
           <li></li>
           <li><button type="button" id="themeToggle" onclick="toggleTheme()">- Mode</button></li>

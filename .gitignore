@@ -17,3 +17,5 @@ package-lock.json
 
 # Uploaded files
 static/upload/
+
+data/*.db
