@@ -1,7 +1,7 @@
 import datetime
 import os
 from werkzeug import exceptions
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, request
 from flask_socketio import SocketIO
 from flask_compress import Compress
 import flask_login
@@ -85,6 +85,22 @@ def handle_not_found(error):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.get("/authenticate")
+def authenticate():
+    if flask_login.current_user and flask_login.current_user.is_authenticated:
+        return redirect("/projects")
+    return render_template("authenticate.html")
+
+@app.post("/authenticate")
+def authenticate_post():
+    email = request.form['email']
+    if True: # email in users and flask.request.form['password'] == users[email]['password']:
+        user = User()
+        flask_login.login_user(user)
+        return redirect("/projects")
+
+    return render_template("authenticate.html")
 
 
 if __name__ == "__main__":
