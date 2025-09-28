@@ -5,8 +5,11 @@
   <div>
     <h2>Login/Register</h1>
     <p>
+      {% if error %}
+        <div style="background-color: lightcoral; color: black; padding: 4px;">{{ error }}</div>
+      {% endif %}
       <form action='authenticate' method='POST'>
-        <input type='text' name='email' id='email' placeholder='email'/>
+        <input type='text' name='username' id='username' placeholder='username'/>
         <input type='password' name='password' id='password' placeholder='password'/>
         <input type='submit' name='submit'/>
         </form>

@@ -1,61 +1,86 @@
 import datetime
+import hashlib
 import os
+import sqlite3
 from werkzeug import exceptions
 from flask import Flask, render_template, redirect, request
 from flask_socketio import SocketIO
 from flask_compress import Compress
-import flask_login
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from pages import base
 
 app = Flask(__name__)
 base.APP = app  # Allows for blueprints to access and use the app instance.
 
 # TODO -- change this before release
-app.secret_key = 'super secret strings' 
-app.config['SECRET_KEY'] = {'UNUSED'}
+app.secret_key = 'random_secret_key_here' 
+app.config['SECRET_KEY'] = app.secret_key
+app.config['SESSION_COOKIE_NAME'] = "carbon"
+
 
 app.config['EXPLAIN_TEMPLATE_LOADING'] = False # Enable if pages render odd
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'upload')
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1000 * 1000 # 50 MB
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 180 # 3 minutes for the MC server images
 
-login_manager = flask_login.LoginManager()
+login_manager = LoginManager()
 
 login_manager.init_app(app)
 
-class User():
-    def is_active(self):
-        return True
-    def is_authenticated(self):
-        return True
-    
-    def is_anonymous(self):
-        return False
-    
-    def get_id(self):
-        return '123'
+# User class for Flask-Login
+class User(UserMixin):
+    def __init__(self, username, name, email):
+        self.id = username
+        self.name = name
+        self.email = email
 
-users = {}
-
+# User loader for Flask-Login
 @login_manager.user_loader
-def user_loader(user_name):
-    if user_name not in users:
-        return
+def load_user(user_id):
+    conn = sqlite3.connect('data/users.db')
+    c = conn.cursor()
+    c.execute("SELECT Name, Email, UserName FROM users WHERE UserName = ?", (user_id,))
+    result = c.fetchone()
+    conn.close()
+    
+    if result:
+        return User(result[2], result[0], result[1])
+    return None
 
-    user = User()
-    print(user)
-    return user
+# Hash password
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
+# Verify password
+def verify_password(password, hashed_password):
+    return hash_password(password) == hashed_password
 
-@login_manager.request_loader
-def request_loader(request):
-    user_name = request.form.get('user_name')
-    if user_name not in users:
-        return
+# Authentication functions
+def authenticate_user(username, password):
+    conn = sqlite3.connect('data/users.db')
+    c = conn.cursor()
+    c.execute("SELECT PwdHash FROM users WHERE UserName = ?", (username,))
+    result = c.fetchone()
+    conn.close()
+    
+    if result:
+        return verify_password(password, result[0])
+    return False
 
-    user = User()
-    print(user)
-    return user
+def get_user_info(username):
+    conn = sqlite3.connect('data/users.db')
+    c = conn.cursor()
+    c.execute("SELECT name, email, UserName FROM users WHERE UserName = ?", (username,))
+    result = c.fetchone()
+    conn.close()
+    
+    if result:
+        return {
+            'name': result[0],
+            'email': result[1],
+            'username': result[2]
+        }
+    return None
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -88,19 +113,25 @@ def index():
 
 @app.get("/authenticate")
 def authenticate():
-    if flask_login.current_user and flask_login.current_user.is_authenticated:
+    if current_user and current_user.is_authenticated:
         return redirect("/projects")
     return render_template("authenticate.html")
 
 @app.post("/authenticate")
 def authenticate_post():
-    email = request.form['email']
-    if True: # email in users and flask.request.form['password'] == users[email]['password']:
-        user = User()
-        flask_login.login_user(user)
-        return redirect("/projects")
+    username = request.form['username']
+    password = request.form['password']
 
-    return render_template("authenticate.html")
+    if authenticate_user(username, password):
+        user = load_user(username)
+        if user:
+            login_user(user)
+            # user_info = get_user_info(username)
+            return redirect("/projects")
+        else:
+            return render_template("authenticate.html", error='User not found')
+    else:
+        return render_template("authenticate.html", error='Invalid username or password')
 
 
 if __name__ == "__main__":
