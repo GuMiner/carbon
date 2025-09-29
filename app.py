@@ -117,6 +117,12 @@ def authenticate():
         return redirect("/projects")
     return render_template("authenticate.html")
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return render_template("index.html")
+
 @app.post("/authenticate")
 def authenticate_post():
     username = request.form['username']

@@ -6,8 +6,22 @@
 
 {% block content %}
 <h1>Stats</h1>
-<p clas>
-    Stats will go here!
+<p>
+    <div class="info-item">
+        <span class="label">Device Name:</span>
+        <span class="value">Framework Desktop with Ryzen AI MAx 395+ and Radeon 8060S Graphics</span>
+    </div>
+    <div class="info-item">
+        <span class="label">Platform:</span>
+        <span class="value">Fedora 42, Linux 6.16.8-200 x86_64</span>
+    </div>
+    <div class="info-item">
+        <span class="label">Resources:</span>
+        <span class="value">32 CPU cores, 128 GB shared RAM (96 GPU, 32 RAM), 2 TB SSD</span>
+    </div>
+</p>
+<p>
+    {{ most_recent }}
 </p>
 <div id="chart" class="ct-perfect-fourth chart-background"></div>
 {% endblock content %}

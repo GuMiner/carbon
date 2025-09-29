@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='gen/index.css') }}">
     {% block css %}
     {% endblock css %}
-
     <title>Helium24</title>
   </head>
   <body>
@@ -23,7 +22,13 @@
           <li><a href="{{ url_for('index') }}"><strong>Carbon</strong></a></li>
         </ul>
         <ul>
+          {% if current_user.is_authenticated %}
+          <li><a class="nav-border" href="{{ url_for('projects.index') }}">Jobs</a></li>
+          <li></li>
+          <li><b><a class="nav-border" href="{{ url_for('logout') }}">Logout</a></b></li>
+          {% else %}
           <li><b><a class="nav-border" href="{{ url_for('authenticate') }}">Login/Register</a></b></li>
+          {% endif %}
           <li></li>
           <li></li>
           <li><a class="nav-border" href="{{ url_for('stats.index') }}">Stats</a></li>
