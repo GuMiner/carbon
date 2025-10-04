@@ -137,7 +137,17 @@ def send_data(process: subprocess.Popen):
     map_thread.start()
 
     while process.poll() is None and IS_ALIVE:
-        time.sleep(30)
+        user_control = sys.stdin.readline().strip()
+        if user_control == "quit" or user_control == "/stop":
+            print("Stopping server...")
+            _send_command('/stop', process)
+            IS_ALIVE = False
+            read_thread.join()
+            query_thread.join()
+            map_thread.join()
+            break
+        else:
+            _send_command(user_control, process)
 
 
 def run_game():

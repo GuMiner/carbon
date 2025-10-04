@@ -12,7 +12,7 @@ python -m venv .venv
 
 - Dependencies
 ```bash
-pip install Flask Flask-Assets Flask-Compress Flask-SocketIO
+pip install Flask Flask-Assets Flask-Compress Flask-SocketIO flask-login
 pip install watchdog
 pip install cssmin jsmin
 ```

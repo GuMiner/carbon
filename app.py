@@ -3,7 +3,7 @@ import hashlib
 import os
 import sqlite3
 from werkzeug import exceptions
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, url_for
 from flask_socketio import SocketIO
 from flask_compress import Compress
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -114,7 +114,7 @@ def index():
 @app.get("/authenticate")
 def authenticate():
     if current_user and current_user.is_authenticated:
-        return redirect("/projects")
+        return redirect(url_for('projects.index'))
     return render_template("authenticate.html")
 
 @app.route('/logout')
@@ -133,7 +133,7 @@ def authenticate_post():
         if user:
             login_user(user)
             # user_info = get_user_info(username)
-            return redirect("/projects")
+            return redirect(url_for('projects.index'))
         else:
             return render_template("authenticate.html", error='User not found')
     else:
