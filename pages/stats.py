@@ -1,4 +1,4 @@
-
+from datetime import datetime
 from flask import Blueprint, jsonify, render_template, request
 import sqlite3
 
@@ -47,21 +47,60 @@ def insert_data(data):
     conn.close()
 
 
+def get_chart_data(metric='cpu_util'):
+    conn = sqlite3.connect('data/stats.db')
+    c = conn.cursor()
+    
+    # Map metric names to database columns
+    metric_map = {
+        'cpu_util': 'cpu_freq',
+        'memory_util': 'memory_percent',
+        'disk_util': 'disk_percent',
+        'gpu_util': 'gpu_util',
+        'temp': 'temp'
+    }
+    
+    column = metric_map.get(metric, 'cpu')
+    
+    # Get data points for chart
+    c.execute(f'SELECT id, {column}, timestamp FROM system_data ORDER BY id DESC LIMIT 30')
+    rows = c.fetchall()
+    
+    # Reverse to get chronological order
+    rows.reverse()
+    
+    labels = [datetime.fromtimestamp(row[2]).strftime("%Y-%m-%d %H:%M:%S") for row in rows]
+    series = [str(row[1]).replace('%', '').replace('C', '') for row in rows]
+    
+    conn.close()
+    return {'labels': labels, 'series': [series]}
+
+@stats.get("/chart-data/<metric>")
+def chart_data(metric):
+    """Endpoint to get chart data for a specific metric"""
+    try:
+        data = get_chart_data(metric)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 def get_most_recent():
     conn = sqlite3.connect('data/stats.db')
     c = conn.cursor()
     
     # Get the most recent entry by ID (assuming auto-increment means newer IDs are more recent)
     c.execute('SELECT * FROM system_data ORDER BY id DESC LIMIT 1')
-    row = c.fetchone()
+    rows = c.fetchall()
     
-    if row:
+    columns = [description[0] for description in c.description]
+
+    json_data = []
+    for row in rows:
         # Convert row to dictionary
-        columns = [description[0] for description in c.description]
         entry = dict(zip(columns, row))
         
         # Convert to proper JSON structure
-        json_data = {
+        json_data.append({
             "system_info": {
                 "timestamp": entry['timestamp']
             },
@@ -97,19 +136,15 @@ def get_most_recent():
                     }]
                 }
             }
-        }
+        })
         
-        conn.close()
-        return json_data
-    else:
-        conn.close()
-        return None
+    conn.close()
+    return json_data
 
 
 @stats.get("/")
 def index():
-    data = get_most_recent() # Temporary
-    return render_template("stats.html", most_recent=data)
+    return render_template("stats.html")
 
 
 @stats.post("/")

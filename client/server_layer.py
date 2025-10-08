@@ -108,17 +108,18 @@ def _process_map_update(result):
 
 
 def update_map():
-    map_update_counter = 0
+    map_update_counter = -100  # FIRST_BOOT
     while IS_ALIVE:
         if map_update_counter <= 0:  # About every 5 minutes and upon startup
-            map_update_counter = 60
 
-            if PLAYERS_ONLINE > 0:
+            if PLAYERS_ONLINE > 0 or map_update_counter < -10:
                 if os.path.exists(IMAGE_PATH):
                     os.remove(IMAGE_PATH)
                 result = subprocess.run([MAP_EXPORTER_PATH, 'image', 'render', '-c',
                                         f'--world={WORLD_PATH}', f'--output={IMAGE_PATH}'], capture_output=True, text=True)
                 _process_map_update(result)
+            
+            map_update_counter = 60
 
         map_update_counter -= 1
         time.sleep(5)

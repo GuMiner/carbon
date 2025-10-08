@@ -20,9 +20,18 @@
         <span class="value">32 CPU cores, 128 GB shared RAM (96 GPU, 32 RAM), 2 TB SSD</span>
     </div>
 </p>
-<p>
-    {{ most_recent }}
-</p>
+
+<div class="chart-controls">
+    <label for="metric-select">Select Metric:</label>
+    <select id="metric-select">
+        <option value="cpu_util">CPU Frequency (Hz)</option>
+        <option value="memory_util">Memory Utilization (%)</option>
+        <option value="disk_util">Disk Utilization (%)</option>
+        <option value="gpu_util">GPU Utilization (%)</option>
+        <option value="temp">Temperature (C) </option>
+    </select>
+</div>
+
 <div id="chart" class="ct-perfect-fourth chart-background"></div>
 {% endblock content %}
 
