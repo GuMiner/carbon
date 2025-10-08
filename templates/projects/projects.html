@@ -1,18 +1,78 @@
 {% extends '_base.html' %}
 
 {% block content %}
-<h1>Jobs</h1>
-<h1>Miscellaneous</h1>
-<h3>Minecraft Server</h2>
+<h2>Welcome <i>{{current_user.name}}</i></h2>
 <p>
-    A nice frontend to view a Minecraft server stats and map.
-    <br/>
-    <a  href="{{ url_for('projects.mc_server') }}">Connect</a>
+What would you like to do today?
 </p>
-<h2>Code Generation</h2>
-<p>In development</p>
+<h3>AI Generation</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Link</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Text-to-Image generation</td>
+            <td><a href="https://www.google.com">Access</a></td>
+            <td>Stable Diffusion 3.5 Large</td>
+        </tr>
+        <tr>
+            <td>Image-to-3D model generation</td>
+            <td><a href="https://www.github.com" target="_blank">Access</a></td>
+            <td>Stable Point Aware 3D</td>
+        </tr>
+        <tr>
+            <td><b>Text Generation</b></td>
+            <td>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usage</th>
+                            <th>Access</th>
+                            <th>Model</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Code Generation</td>
+                            <td><a href="https://www.github.com" target="_blank">Access</a></td>
+                            <td>Qwen3-Coder 30B A3B FP16</td>
+                        </tr>
+                        <tr>
+                            <td>General</td>
+                            <td><a href="https://www.github.com" target="_blank">Access</a></td>
+                            <td>Llama4 Scout 109B Q4_K_M</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h3>Gaming</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Link</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Minecraft</td>
+            <td><a href="{{ url_for('projects.mc_server') }}">Access</a></td>
+            <td>Minecraft</td>
+        </tr>
+    </tbody>
+</table>
 <h2>Video Generation</h2>
 <p>In development</p>
+
 {% endblock content %}
 
 {% block scripts %}
