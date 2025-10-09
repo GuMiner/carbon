@@ -47,13 +47,10 @@ def load_user(user_id):
         return User(result[2], result[0], result[1])
     return None
 
-# Hash password
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
 
 # Verify password
 def verify_password(password, hashed_password):
-    return hash_password(password) == hashed_password
+    return base.hash_password(password) == hashed_password
 
 # Authentication functions
 def authenticate_user(username, password):
@@ -90,9 +87,10 @@ socketio = SocketIO(app)
 base.SOCKETIO = socketio
 
 # Must be imported later so that 'base.APP' is not None
-from pages import attributions, blog, projects, stats
+from pages import admin, attributions, blog, projects, stats
 
 Compress(app)
+app.register_blueprint(admin.admin)
 app.register_blueprint(attributions.attributions)
 app.register_blueprint(blog.blog)
 app.register_blueprint(stats.stats)

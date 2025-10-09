@@ -1,0 +1,52 @@
+{% extends '_base.html' %}
+
+{% block css %}
+<!--<link rel="stylesheet" href="{{ url_for('static', filename='gen/stats.css') }}">-->
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .delete-btn { background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        .delete-btn:hover { background-color: #d32f2f; }
+        .add-btn { background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; }
+        .add-btn:hover { background-color: #45a049; }
+        .flash-messages { margin: 10px 0; }
+        .flash-error { color: red; }
+        .flash-success { color: green; }
+    </style>
+{% endblock css %}
+
+{% block content %}
+    <p><a href="{{ url_for('admin.add_user') }}" class="add-btn">Add New User</a></p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.Id }}</td>
+                <td>{{ user.Name }}</td>
+                <td>{{ user.Email }}</td>
+                <td>{{ user.UserName }}</td>
+                <td>
+                    <form action="{{ url_for('admin.delete_user', user_id=user.Id) }}" method="post" style="display: inline;">
+                        <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock content %}
+
+{% block scripts %}
+{% endblock scripts %}

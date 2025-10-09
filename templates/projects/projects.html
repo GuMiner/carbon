@@ -5,6 +5,9 @@
 <p>
 What would you like to do today?
 </p>
+{% if current_user.id == "carbon" %}
+<h4><a href="{{ url_for('admin.index') }}">User Administration</a></h4>
+{% endif %}
 <h3>AI Generation</h3>
 <table>
     <thead>

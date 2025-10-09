@@ -1,4 +1,3 @@
-
 from flask import Blueprint, render_template, request, g
 import flask_login
 import os
@@ -27,7 +26,6 @@ def close_connection(exception):
 @projects.route("/")
 @flask_login.login_required # ORDER IMPORTANT
 def index():
-    print(flask_login.current_user)
     return render_template("projects.html")
 
 @projects.route("/mc_server")

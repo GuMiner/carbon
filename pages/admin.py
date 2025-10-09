@@ -1,0 +1,56 @@
+from flask import Blueprint, render_template, request, redirect, url_for
+import flask_login
+import sqlite3
+from . import base
+
+admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='../templates/admin')
+
+def get_db_connection():
+    conn = sqlite3.connect('data/users.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@admin.route("/")
+@flask_login.login_required # ORDER IMPORTANT
+def index():
+    conn = get_db_connection()
+    users = conn.execute('SELECT * FROM users').fetchall()
+    conn.close()
+    return render_template("admin.html", users=users)
+
+
+@admin.route('/users/add', methods=['GET', 'POST'])
+def add_user():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        username = request.form['username']
+        password = request.form['password']
+        
+        if not name or not email or not username or not password:
+            # flash('All fields are required!')
+            return redirect(url_for('admin.add_user'))
+        
+        pwd_hash = base.hash_password(password)
+        
+        conn = get_db_connection()
+        conn.execute('INSERT INTO users (Name, Email, UserName, PwdHash) VALUES (?, ?, ?, ?)',
+                    (name, email, username, pwd_hash))
+        conn.commit()
+        conn.close()
+        
+        # flash('User added successfully!')
+        return redirect(url_for('admin.add_user'))
+    
+    return render_template('add_user.html')
+
+@admin.route('/users/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM users WHERE Id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+    
+    # flash('User deleted successfully!')
+    return redirect(url_for('admin.index'))

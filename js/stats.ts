@@ -33,6 +33,7 @@ function calculateMinMax(data: number[]): { min: number, max: number } {
 // Function to fetch and update chart data
 async function updateChart(metric: string) {
   try {
+    // TODO FIX This needs to use the url_for or something similar
     const response = await fetch(`/stats/chart-data/${metric}`);
     const data = await response.json();
     
