@@ -6,7 +6,37 @@
 What would you like to do today?
 </p>
 {% if current_user.id == "carbon" %}
-<h4><a href="{{ url_for('admin.index') }}">User Administration</a></h4>
+    <h4><a href="{{ url_for('admin.index') }}">User Administration</a></h4>
+    <h2>Feedback</h2>
+    {% if feedback %}
+        {% for item in feedback %}
+            <div class="feedback-item">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.text }}</p>
+                <p><strong>Submitted by:</strong> {{ item.user_name }}</p>
+                <p><strong>Date:</strong> {{ item.date_submitted }}</p>
+                <p><strong>Status:</strong> {% if item.resolved %}Resolved{% else %}Open{% endif %}</p>
+            </div>
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p>No feedback items found.</p>
+    {% endif %}
+{% else %}
+    <!-- Feedback submission form -->
+    <h2>Submit Feedback</h2>
+    <h3>Total feedback items: {{ feedback|length }}</h3>
+    <form method="POST" action="{{ url_for('projects.index') }}">
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="text">Feedback:</label>
+            <textarea id="text" name="text" required></textarea>
+        </div>
+        <button type="submit">Submit Feedback</button>
+    </form>
 {% endif %}
 <h3>AI Generation</h3>
 <table>

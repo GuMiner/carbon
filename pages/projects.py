@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, g
 import flask_login
+from datetime import datetime
 import os
 import sqlite3
 import threading
@@ -22,11 +23,53 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+def init_db():
+    """Initialize the database with feedback table if it doesn't exist"""
+    conn = sqlite3.connect('data/feedback.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            text TEXT NOT NULL,
+            user_name TEXT NOT NULL,
+            date_submitted TEXT NOT NULL,
+            resolved BOOLEAN DEFAULT FALSE
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-@projects.route("/")
+@projects.route("/", methods=["GET", "POST"])
 @flask_login.login_required # ORDER IMPORTANT
 def index():
-    return render_template("projects.html")
+    init_db()
+
+    if request.method == "POST":
+        # Handle feedback submission
+        title = request.form.get('title')
+        text = request.form.get('text')
+        user_name = flask_login.current_user.id 
+        
+        if title and text:
+            conn = sqlite3.connect('data/feedback.db')
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO feedback (title, text, user_name, date_submitted)
+                VALUES (?, ?, ?, ?)
+            ''', (title, text, user_name, datetime.now().isoformat()))
+            conn.commit()
+            conn.close()
+
+    # Fetch feedback from database
+    conn = sqlite3.connect('data/feedback.db')
+    conn.row_factory = sqlite3.Row  # This allows us to access columns by name
+    c = conn.cursor()
+    c.execute('SELECT * FROM feedback ORDER BY date_submitted DESC')
+    feedback_items = c.fetchall()
+    conn.close()
+
+    return render_template("projects.html", feedback=feedback_items)
 
 @projects.route("/mc_server")
 def mc_server():
