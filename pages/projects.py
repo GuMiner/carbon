@@ -69,7 +69,35 @@ def index():
     feedback_items = c.fetchall()
     conn.close()
 
-    return render_template("projects.html", feedback=feedback_items)
+    # Fetch messages from database
+    conn = sqlite3.connect('data/users.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('SELECT M.Message, M.SentAt, U.Name FROM messages M JOIN "users" U on M.UserId = U.Id WHERE U.UserName = ? ORDER BY SentAt DESC', (flask_login.current_user.id,))
+    messages = c.fetchall()
+    conn.close()
+
+    return render_template("projects.html", feedback=feedback_items, messages=messages)
+
+@projects.route("/toggle_feedback/<int:feedback_id>", methods=["POST"])
+def toggle_feedback(feedback_id):
+    conn = sqlite3.connect('data/feedback.db')
+    c = conn.cursor()
+    
+    # Fetch current resolved status
+    c.execute('SELECT resolved FROM feedback WHERE id = ?', (feedback_id,))
+    result = c.fetchone()
+    
+    if result:
+        current_status = result[0]
+        new_status = not current_status
+        
+        # Update the resolved status
+        c.execute('UPDATE feedback SET resolved = ? WHERE id = ?', (new_status, feedback_id))
+        conn.commit()
+    
+    conn.close()
+    return "", 204  # No content response
 
 @projects.route("/mc_server")
 def mc_server():

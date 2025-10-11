@@ -1,5 +1,4 @@
-import datetime
-import hashlib
+from datetime import date, datetime
 import os
 import sqlite3
 from werkzeug import exceptions
@@ -10,6 +9,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from pages import base
 
 app = Flask(__name__)
+app.jinja_env.filters['date'] = base.date_filter
 base.APP = app  # Allows for blueprints to access and use the app instance.
 
 # TODO -- change this before release
@@ -99,7 +99,7 @@ app.register_blueprint(projects.projects)
 # Used by all pages for the ©️ text.
 @app.context_processor
 def inject_year():
-    return {'year': datetime.date.today().year}
+    return {'year': date.today().year}
 
 @app.errorhandler(exceptions.NotFound)
 def handle_not_found(error):

@@ -5,39 +5,88 @@
 <p>
 What would you like to do today?
 </p>
+<div class="grid">
 {% if current_user.id == "carbon" %}
-    <h4><a href="{{ url_for('admin.index') }}">User Administration</a></h4>
-    <h2>Feedback</h2>
-    {% if feedback %}
-        {% for item in feedback %}
-            <div class="feedback-item">
-                <h3>{{ item.title }}</h3>
-                <p>{{ item.text }}</p>
-                <p><strong>Submitted by:</strong> {{ item.user_name }}</p>
-                <p><strong>Date:</strong> {{ item.date_submitted }}</p>
-                <p><strong>Status:</strong> {% if item.resolved %}Resolved{% else %}Open{% endif %}</p>
-            </div>
-            <hr>
-        {% endfor %}
-    {% else %}
-        <p>No feedback items found.</p>
-    {% endif %}
+    <div>
+        <h4><a href="{{ url_for('admin.index') }}">User Administration</a></h4>
+        <h2>Feedback</h2>
+        <h4>Total feedback items: {{ feedback|length }}</h4>
+        <h4>Feedback items unresolved: {{ feedback | selectattr('resolved', 'equalto', false) | list | length }}</h4>
+        {% if feedback %}
+            <table class="feedback-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Text</th>
+                        <th>Submitted by</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in feedback %}
+                    <tr>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.text }}</td>
+                        <td>{{ item.user_name }}</td>
+                        <td>{{ item.date_submitted|date("%B %d, %Y %I:%M %p") }}</td>
+                        <td id="status-{{ item.id }}">{% if item.resolved %}Resolved{% else %}Open{% endif %}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('projects.toggle_feedback', feedback_id=item.id) }}" style="display:inline;">
+                                <button type="submit" class="btn {{ 'btn-resolved' if item.resolved else 'btn-open' }}">
+                                    {{ 'Mark Unresolved' if item.resolved else 'Mark Resolved' }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No feedback items found.</p>
+        {% endif %}
+    </div>
 {% else %}
-    <!-- Feedback submission form -->
-    <h2>Submit Feedback</h2>
-    <h3>Total feedback items: {{ feedback|length }}</h3>
-    <form method="POST" action="{{ url_for('projects.index') }}">
-        <div>
-            <label for="title">Title:</label>
-            <input type="text" id="title" name="title" required>
-        </div>
-        <div>
-            <label for="text">Feedback:</label>
-            <textarea id="text" name="text" required></textarea>
-        </div>
-        <button type="submit">Submit Feedback</button>
-    </form>
+    <div>
+        <!-- Feedback submission form -->
+        <h2>Submit Feedback</h2>
+        <h4>Total feedback items: {{ feedback|length }}</h4>
+        <h4>Feedback items unresolved: {{ feedback | selectattr('resolved', 'equalto', false) | list | length }}</h4>
+        <form method="POST" action="{{ url_for('projects.index') }}">
+            <div>
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div>
+                <label for="text">Feedback:</label>
+                <textarea id="text" name="text" required></textarea>
+            </div>
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </div>
+    <div>
+        <h2>View Messages</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>For</th>
+                    <th>Message</th>
+                    <th>Sent At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for message in messages %}
+                <tr>
+                    <td>{{ message.Name }}</td>
+                    <td>{{ message.Message }}</td>
+                    <td>{{ message.SentAt|date("%B %d, %Y %I:%M %p") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endif %}
+</div>
 <h3>AI Generation</h3>
 <table>
     <thead>
@@ -109,4 +158,5 @@ What would you like to do today?
 {% endblock content %}
 
 {% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='gen/projects.js') }}"></script>
 {% endblock scripts %}

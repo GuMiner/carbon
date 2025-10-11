@@ -7,6 +7,18 @@ admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='../te
 
 def get_db_connection():
     conn = sqlite3.connect('data/users.db')
+    
+    cursor = conn.cursor()
+    cursor.execute('''
+            CREATE TABLE IF NOT EXISTS messages (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                UserId INTEGER,
+                Message TEXT NOT NULL,
+                SentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (UserId) REFERENCES users (Id)
+            )
+        ''')
+        
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -16,8 +28,15 @@ def get_db_connection():
 def index():
     conn = get_db_connection()
     users = conn.execute('SELECT * FROM users').fetchall()
+
+    # Fetch messages from database
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('SELECT M.Message, M.SentAt, U.Name FROM messages M JOIN "users" U on M.UserId = U.Id ORDER BY SentAt DESC')
+    messages = c.fetchall()
     conn.close()
-    return render_template("admin.html", users=users)
+    
+    return render_template("admin.html", users=users, messages=messages)
 
 
 @admin.route('/users/add', methods=['GET', 'POST'])
@@ -54,3 +73,25 @@ def delete_user(user_id):
     
     # flash('User deleted successfully!')
     return redirect(url_for('admin.index'))
+
+@admin.route('/users/send-message/<int:user_id>', methods=['GET', 'POST'])
+def send_message(user_id):
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE Id = ?', (user_id,)).fetchone()
+    
+    if request.method == 'POST':
+        message = request.form['message']
+        if not message:
+            # flash('Message cannot be empty!')
+            return redirect(url_for('admin.send_message', user_id=user_id))
+        
+        conn.execute('INSERT INTO messages (UserId, Message) VALUES (?, ?)',
+                    (user_id, message))
+        conn.commit()
+        conn.close()
+        
+        # flash('Message sent successfully!')
+        return redirect(url_for('admin.index'))
+    
+    conn.close()
+    return render_template('send_message.html', user=user)
