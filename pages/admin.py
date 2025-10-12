@@ -23,10 +23,15 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def _is_superadmin():
+    return flask_login.current_user.id == "carbon"
 
 @admin.route("/")
 @flask_login.login_required # ORDER IMPORTANT
 def index():
+    if not _is_superadmin():
+        return render_template("errors/access_denied.html"), 403
+
     conn = get_db_connection()
     users = conn.execute('SELECT * FROM users').fetchall()
 
@@ -42,6 +47,9 @@ def index():
 
 @admin.route('/users/add', methods=['GET', 'POST'])
 def add_user():
+    if not _is_superadmin():
+        return render_template("errors/access_denied.html"), 403
+
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -67,6 +75,9 @@ def add_user():
 
 @admin.route('/users/delete/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
+    if not _is_superadmin():
+        return render_template("errors/access_denied.html"), 403
+
     conn = get_db_connection()
     conn.execute('DELETE FROM users WHERE Id = ?', (user_id,))
     conn.commit()
@@ -77,6 +88,9 @@ def delete_user(user_id):
 
 @admin.route('/users/send-message/<int:user_id>', methods=['GET', 'POST'])
 def send_message(user_id):
+    if not _is_superadmin():
+        return render_template("errors/access_denied.html"), 403
+    
     conn = get_db_connection()
     user = conn.execute('SELECT * FROM users WHERE Id = ?', (user_id,)).fetchone()
     
@@ -96,3 +110,31 @@ def send_message(user_id):
     
     conn.close()
     return render_template('send_message.html', user=user)
+
+@admin.route('/users/edit/<user_name>', methods=['GET', 'POST'])
+def edit_user(user_name):
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE UserName = ?', (user_name,)).fetchone()
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        
+        if not name or not email:
+            return redirect(url_for('admin.edit_user', user_name=user_name))
+        
+        if password:  # Only hash if password is provided
+            pwd_hash = base.hash_password(password)
+            conn.execute('UPDATE users SET Name = ?, Email = ?, PwdHash = ? WHERE UserName = ?',
+                        (name, email, pwd_hash, user_name))
+        else:
+            conn.execute('UPDATE users SET Name = ?, Email = ? WHERE UserName = ?',
+                        (name, email, user_name))
+        
+        conn.commit()
+        conn.close()
+        return redirect(url_for('admin.index'))
+    
+    conn.close()
+    return render_template('edit_user.html', user=user)

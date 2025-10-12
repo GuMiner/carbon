@@ -101,6 +101,9 @@ What would you like to do today?
                 {% endfor %}
             </tbody>
         </table>
+        <h3>User settings</h3>
+            <a href="{{ url_for('admin.edit_user', user_name=current_user.id) }}" class="send-btn">Edit User</a>
+
     </div>
 {% endif %}
 </div>
