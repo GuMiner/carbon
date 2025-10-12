@@ -31,4 +31,30 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error:', error));
         });
     });
+
+    // Handle message dismissal
+    const messageForms = document.querySelectorAll('form[action*="toggle_message"]');
+    
+    messageForms.forEach(form => {
+        form.addEventListener('submit', function(e: Event) {
+            e.preventDefault();
+            
+            const messageId = this.action.split('/').pop();
+            const messageRow = document.getElementById(`message-${messageId}`);
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(() => {
+                // Hide the message row
+                if (messageRow) {
+                    messageRow.classList.add('hidden');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
 });

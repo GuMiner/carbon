@@ -15,10 +15,11 @@ def get_db_connection():
                 UserId INTEGER,
                 Message TEXT NOT NULL,
                 SentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                Dismissed BOOLEAN DEFAULT FALSE,
                 FOREIGN KEY (UserId) REFERENCES users (Id)
             )
         ''')
-        
+
     conn.row_factory = sqlite3.Row
     return conn
 

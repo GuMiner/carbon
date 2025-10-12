@@ -1,5 +1,15 @@
 {% extends '_base.html' %}
 
+{% block css %}
+<!--<link rel="stylesheet" href="{{ url_for('static', filename='gen/projects.css') }}">-->
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+{% endblock css %}
+
+
 {% block content %}
 <h2>Welcome <i>{{current_user.name}}</i></h2>
 <p>
@@ -76,10 +86,17 @@ What would you like to do today?
             </thead>
             <tbody>
                 {% for message in messages %}
-                <tr>
+                <tr id="message-{{ message.id }}">
                     <td>{{ message.Name }}</td>
                     <td>{{ message.Message }}</td>
                     <td>{{ message.SentAt|date("%B %d, %Y %I:%M %p") }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('projects.toggle_message', message_id=message.id) }}" style="display:inline;">
+                            <button type="submit" class="btn-open">
+                                Dismiss
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

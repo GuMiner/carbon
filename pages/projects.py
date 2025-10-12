@@ -73,11 +73,33 @@ def index():
     conn = sqlite3.connect('data/users.db')
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute('SELECT M.Message, M.SentAt, U.Name FROM messages M JOIN "users" U on M.UserId = U.Id WHERE U.UserName = ? ORDER BY SentAt DESC', (flask_login.current_user.id,))
+    c.execute('SELECT M.Id, M.Message, M.SentAt, U.Name FROM messages M ' \
+        'JOIN "users" U on M.UserId = U.Id ' \
+        'WHERE U.UserName = ? AND M.Dismissed = False ' \
+        'ORDER BY SentAt DESC', (flask_login.current_user.id,))
     messages = c.fetchall()
     conn.close()
 
     return render_template("projects.html", feedback=feedback_items, messages=messages)
+
+
+@projects.route("/toggle_message/<int:message_id>", methods=["POST"])
+def toggle_message(message_id):
+    conn = sqlite3.connect('data/users.db')
+    c = conn.cursor()
+    
+    # Fetch current resolved status
+    c.execute('SELECT Dismissed FROM messages WHERE id = ?', (message_id,))
+    result = c.fetchone()
+    
+    if result:
+        # Update the resolved status
+        c.execute('UPDATE messages SET Dismissed = True WHERE id = ?', (message_id,))
+        conn.commit()
+    
+    conn.close()
+    return "", 204  # No content response
+
 
 @projects.route("/toggle_feedback/<int:feedback_id>", methods=["POST"])
 def toggle_feedback(feedback_id):
