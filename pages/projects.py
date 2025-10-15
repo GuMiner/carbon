@@ -125,6 +125,10 @@ def toggle_feedback(feedback_id):
 def mc_server():
     return render_template("mc_server.html")
 
+@projects.route("/image-to-mesh")
+def three_dee():
+    return render_template("image-to-mesh.html")
+
 # Update a player's position in the in-memory dictionary
 @projects.route("/mc_server/player", methods=['POST'])
 def mc_server_player_update():

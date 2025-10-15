@@ -1,0 +1,52 @@
+{% extends '_base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='gen/image-to-mesh.css') }}">
+{% endblock css %}
+
+{% block content %}
+<h4>Image Processor</h4>
+
+<div class="container">
+  <div class="panel">
+    <h5>Upload Image</h5>
+    <div id="drop-area" class="drop-area">
+      <p>Drag & drop your image here or click to browse</p>
+      <input type="file" id="fileElem" accept="image/*" class="file-input">
+      <label for="fileElem" class="file-label">Select Image</label>
+    </div>
+    <div id="preview-container" class="preview-container"></div>
+  </div>
+
+  <div class="panel">
+    <h5>Select Points</h5>
+    <div id="points-container" class="points-container">
+      <p>Click on the image to select points. Right-click to remove points.</p>
+      <div id="image-container" class="image-container"></div>
+    </div>
+    <div id="points-info" class="points-info"></div>
+  </div>
+
+  <div class="panel">
+    <h5>Background Removed</h5>
+    <div id="result-container" class="result-container">
+      <p>Result will appear here after processing</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h5>3D Preview</h5>
+    <div id="gltf-container" class="gltf-container">
+    </div>
+  </div>
+</div>
+
+<div class="submit-section">
+  <button id="submit-btn" class="submit-btn">Submit</button>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='gen/image-to-mesh.js') }}"></script>
+{% endblock scripts %}

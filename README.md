@@ -32,10 +32,12 @@ npm install -g sass
 sass scss/index.scss scss/gen/index.css
 sass scss/mc.scss scss/gen/mc.css
 sass scss/stats.scss scss/gen/stats.css
+sass scss/image-to-mesh.scss scss/gen/image-to-mesh.css
 esbuild js/index.ts --bundle --outdir=static/gen --sourcemap
 esbuild js/mc.ts --bundle --outdir=static/gen --sourcemap
 esbuild js/stats.ts --bundle --outdir=static/gen --sourcemap
 esbuild js/projects.ts --bundle --outdir=static/gen --sourcemap
+esbuild js/image-to-mesh.ts --bundle --outdir=static/gen --sourcemap
 
 flask --debug run
 ```
