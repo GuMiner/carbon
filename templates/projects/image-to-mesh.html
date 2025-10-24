@@ -9,17 +9,16 @@
 
 <div class="container">
   <div class="panel">
-    <h5>Upload Image</h5>
+    <h5>1. Upload Image</h5>
     <div id="drop-area" class="drop-area">
-      <p>Drag & drop your image here or click to browse</p>
+      <i>Drag & drop your image here or click to browse</i>
       <input type="file" id="fileElem" accept="image/*" class="file-input">
       <label for="fileElem" class="file-label">Select Image</label>
     </div>
-    <div id="preview-container" class="preview-container"></div>
   </div>
 
   <div class="panel">
-    <h5>Select Points</h5>
+    <h5>2. Select Main Object</h5>
     <div id="points-container" class="points-container">
       <p>Click on the image to select points. Right-click to remove points.</p>
       <div id="image-container" class="image-container"></div>
@@ -28,21 +27,28 @@
   </div>
 
   <div class="panel">
-    <h5>Background Removed</h5>
+    <h5>3. Remove Background</h5>
+    <div class="controls grid">
+      <button id="remove-bg-btn" class="btn btn-primary">Remove Background</button>
+      <p></p>
+      <label class="skip-checkbox">
+        <input type="checkbox" id="skip-bg-removal"> Skip <i>(image already has the background removed)</i>
+      </label>
+    </div>
     <div id="result-container" class="result-container">
       <p>Result will appear here after processing</p>
     </div>
   </div>
 
   <div class="panel">
-    <h5>3D Preview</h5>
+    <h5>4. Convert to 3D</h5>
+
+    <div class="submit-section">
+      <button id="submit-btn" class="submit-btn">Submit</button>
+    </div>
     <div id="gltf-container" class="gltf-container">
     </div>
   </div>
-</div>
-
-<div class="submit-section">
-  <button id="submit-btn" class="submit-btn">Submit</button>
 </div>
 
 {% endblock content %}

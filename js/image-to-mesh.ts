@@ -1,55 +1,36 @@
 import "../scss/gen/image-to-mesh.css";
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import "./image-to-mesh/file-loader.ts"
+import { setImageLoadCallback } from "./image-to-mesh/file-loader";
+import "./image-to-mesh/mesh-renderer.ts"
+import { removeBackground } from "@imgly/background-removal";
 
 // DOM Elements
-const dropArea = document.getElementById('drop-area')!;
-const fileElem = document.getElementById('fileElem') as HTMLInputElement;
-const fileLabel = document.querySelector('.file-label')!;
-const previewContainer = document.getElementById('preview-container')!;
 const imageContainer = document.getElementById('image-container')!;
 const pointsInfo = document.getElementById('points-info')!;
 const resultContainer = document.getElementById('result-container')!;
-const gltfContainer = document.getElementById('gltf-container')!;
 const submitBtn = document.getElementById('submit-btn')!;
+const bgRemovalBtn = document.getElementById('remove-bg-btn')!;
+const skipBgRemoval = document.getElementById('skip-bg-removal')! as HTMLInputElement;
 
 // State variables
 let currentImage: HTMLImageElement | null = null;
-let points: {x: number, y: number}[] = [];
 let selectedPoints: {x: number, y: number}[] = [];
-let renderer: THREE.WebGLRenderer | null = null;
-let scene: THREE.Scene | null = null;
-let camera: THREE.PerspectiveCamera | null = null;
-let mesh: THREE.Mesh | null = null;
-let controls: THREE.OrbitControls;
 
-// Event Listeners
-dropArea.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropArea.classList.add('drag-over');
+setImageLoadCallback((image) => {
+    currentImage = image;
+    selectedPoints = [];
+
+    displayImage();
+    updatePointsDisplay();
+    drawPoints();
 });
 
-dropArea.addEventListener('dragleave', () => {
-  dropArea.classList.remove('drag-over');
-});
-
-dropArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropArea.classList.remove('drag-over');
-  
-  if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
-    handleFile(e.dataTransfer.files[0]);
+skipBgRemoval.addEventListener('change', () => {
+  if (skipBgRemoval.checked) {
+    resultContainer.style.display = 'none';
+  } else {
+    resultContainer.style.display = 'block';
   }
-});
-
-fileElem.addEventListener('change', () => {
-  if (fileElem.files && fileElem.files[0]) {
-    handleFile(fileElem.files[0]);
-  }
-});
-
-fileLabel.addEventListener('click', () => {
-  fileElem.click();
 });
 
 imageContainer.addEventListener('click', (e) => {
@@ -97,154 +78,7 @@ imageContainer.addEventListener('contextmenu', (e) => {
 });
 
 submitBtn.addEventListener('click', processImage);
-
-// Initialize 3D scene
-function initScene() {
-  // Create scene
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf0f0f0);
-  
-  // Create camera
-  camera = new THREE.PerspectiveCamera(75, gltfContainer.clientWidth / gltfContainer.clientHeight, 0.1, 1000);
-  camera.position.z = 1;
-  
-  // Create renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(gltfContainer.clientWidth, gltfContainer.clientHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  gltfContainer.appendChild(renderer.domElement);
-  
-  // Add lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambientLight);
-  
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(1, 1, 1);
-  scene.add(directionalLight);
-  
-  // Load GLTF model
-  const loader = new GLTFLoader();
-  loader.load(
-    '../static/mesh.glb',
-    (gltf) => {
-      // Add the loaded model to the scene
-      scene?.add(gltf.scene);
-      
-      // Store reference to the mesh for rotation
-      mesh = gltf.scene;
-      
-      // Optional: Center the model
-      const box = new THREE.Box3().setFromObject(gltf.scene);
-      const center = box.getCenter(new THREE.Vector3());
-      gltf.scene.position.x += (gltf.scene.position.x - center.x);
-      gltf.scene.position.y += (gltf.scene.position.y - center.y);
-      gltf.scene.position.z += (gltf.scene.position.z - center.z);
-      
-      // Initialize orbit controls
-      controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-    },
-    (xhr) => {
-      console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-    },
-    (error) => {
-      console.error('An error occurred while loading the GLTF model:', error);
-    }
-  );
-  
-  // Handle window resize
-  window.addEventListener('resize', () => {
-    if (camera && renderer && gltfContainer) {
-      camera.aspect = gltfContainer.clientWidth / gltfContainer.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(gltfContainer.clientWidth, gltfContainer.clientHeight);
-    }
-  });
-  
-  // Add mouse event listeners for rotation
-  let isDragging = false;
-  let previousMousePosition = {
-    x: 0,
-    y: 0
-  };
-
-  gltfContainer.addEventListener('mousedown', (e) => {
-    isDragging = true;
-  });
-
-  gltfContainer.addEventListener('mousemove', (e) => {
-    if (isDragging && mesh) {
-      const deltaMove = {
-        x: e.offsetX - previousMousePosition.x,
-        y: e.offsetY - previousMousePosition.y
-      };
-
-      // Rotate the mesh based on mouse movement
-      mesh.rotation.y += deltaMove.x * 0.01;
-      mesh.rotation.x += deltaMove.y * 0.01;
-    }
-    
-    previousMousePosition = {
-      x: e.offsetX,
-      y: e.offsetY
-    };
-  });
-
-  gltfContainer.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
-
-  gltfContainer.addEventListener('mouseleave', () => {
-    isDragging = false;
-  });
-  
-  // Start animation loop
-  animate();
-}
-// Animation loop
-function animate() {
-  requestAnimationFrame(animate);
-  
-  // Rotate the mesh if it exists
-  if (mesh) {
-    mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-  }
-
-  // Update controls for damping effect
-  if (controls) {
-    controls.update();
-  }
-  
-  if (renderer && scene && camera) {
-    renderer.render(scene, camera);
-  }
-}
-
-// Handle file upload
-function handleFile(file: File) {
-  if (!file.type.match('image.*')) {
-    alert('Please select an image file');
-    return;
-  }
-  
-  const reader = new FileReader();
-  
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      currentImage = img;
-      displayImage();
-      selectedPoints = [];
-      updatePointsDisplay();
-      drawPoints();
-    };
-    img.src = e.target?.result as string;
-  };
-  
-  reader.readAsDataURL(file);
-}
+bgRemovalBtn.addEventListener('click', removeImageBg);
 
 // Display the image
 function displayImage() {
@@ -252,14 +86,6 @@ function displayImage() {
   
   // Clear previous content
   imageContainer.innerHTML = '';
-  previewContainer.innerHTML = '';
-  
-  // Create preview
-  const preview = document.createElement('img');
-  preview.src = currentImage.src;
-  preview.style.maxWidth = '100%';
-  preview.style.maxHeight = '200px';
-  previewContainer.appendChild(preview);
   
   // Create image container with the image
   const imgContainer = document.createElement('div');
@@ -277,47 +103,6 @@ function displayImage() {
   
   imgContainer.appendChild(img);
   imageContainer.appendChild(imgContainer);
-  
-  // Add event listener to container for point selection
-  imgContainer.addEventListener('click', (e) => {
-    const rect = imgContainer.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    // Scale coordinates to image dimensions
-    const scaledX = (x / rect.width) * currentImage!.naturalWidth;
-    const scaledY = (y / rect.height) * currentImage!.naturalHeight;
-    
-    selectedPoints.push({x: scaledX, y: scaledY});
-    updatePointsDisplay();
-    drawPoints();
-  });
-  
-  imgContainer.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    const rect = imgContainer.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    // Scale coordinates to image dimensions
-    const scaledX = (x / rect.width) * currentImage!.naturalWidth;
-    const scaledY = (y / rect.height) * currentImage!.naturalHeight;
-    
-    // Remove closest point
-    const closestPoint = selectedPoints.reduce((closest, point) => {
-      const distance = Math.sqrt(Math.pow(point.x - scaledX, 2) + Math.pow(point.y - scaledY, 2));
-      if (distance < closest.distance) {
-        return { point, distance };
-      }
-      return closest;
-    }, { point: null, distance: Infinity });
-    
-    if (closestPoint.point) {
-      selectedPoints = selectedPoints.filter(p => p !== closestPoint.point);
-      updatePointsDisplay();
-      drawPoints();
-    }
-  });
 }
 
 // Update points display
@@ -375,6 +160,31 @@ function drawPoints() {
   });
 }
 
+function removeImageBg() {
+  // Create a canvas element
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Set canvas dimensions to match the image
+  canvas.width = currentImage.width;
+  canvas.height = currentImage.height;
+
+  // Draw the image onto the canvas
+  ctx.drawImage(currentImage, 0, 0);
+
+  // Get ImageData from the canvas
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  removeBackground(imageData).then((blob: Blob) => {
+    // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
+    const url = URL.createObjectURL(blob);
+      // Create a new HTML image element and put it in 'resultContainer'
+    const img = document.createElement('img');
+    img.src = url;
+    resultContainer.appendChild(img);
+  });
+}
+
 // Process image with background removal
 function processImage() {
   if (!currentImage) {
@@ -386,11 +196,7 @@ function processImage() {
     alert('Please select at least 3 points');
     return;
   }
-  
-  // In a real implementation, this would use a background removal library
-  // For this example, we'll simulate the result
-  resultContainer.innerHTML = '<p>Background removed image would appear here</p>';
-  
+
   // Create a canvas to simulate the result
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -414,8 +220,3 @@ function processImage() {
     resultContainer.appendChild(resultImg);
   }
 }
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-  initScene();
-});
