@@ -135,8 +135,12 @@ def mc_server_player_update():
     data = request.get_json()
     name = data["name"]
     position = data["position"]
+
+    # Convert position and current time to a friendly string
+    time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    friendly_string = f"Position: {position}, Last Updated: {time_str}"
     with player_pos_lock:
-        player_pos_live_map[name] = position
+        player_pos_live_map[name] = friendly_string
     return "Ok"
 
 # Save a map file uploaded 

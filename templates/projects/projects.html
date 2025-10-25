@@ -6,6 +6,11 @@
         .hidden {
             display: none;
         }
+        .separate-div {
+            border: 1px solid grey;
+            padding: 2px;
+            margin: 2px;
+        }
     </style>
 {% endblock css %}
 
@@ -57,7 +62,7 @@ What would you like to do today?
         {% endif %}
     </div>
 {% else %}
-    <div>
+    <div class="separate-div">
         <!-- Feedback submission form -->
         <h3>Submit Feedback</h3>
         <p>
@@ -77,105 +82,109 @@ What would you like to do today?
         </form>
     </div>
     <div>
-        <h2>View Messages</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>For</th>
-                    <th>Message</th>
-                    <th>Sent At</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for message in messages %}
-                <tr id="message-{{ message.id }}">
-                    <td>{{ message.Name }}</td>
-                    <td>{{ message.Message }}</td>
-                    <td>{{ message.SentAt|date("%B %d, %Y %I:%M %p") }}</td>
-                    <td>
-                        <form method="POST" action="{{ url_for('projects.toggle_message', message_id=message.id) }}" style="display:inline;">
-                            <button type="submit" class="btn-open">
-                                Dismiss
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <h3>User settings</h3>
+        <div class="separate-div">
+        <h3>View Messages</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>For</th>
+                        <th>Message</th>
+                        <th>Sent At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in messages %}
+                    <tr id="message-{{ message.id }}">
+                        <td>{{ message.Name }}</td>
+                        <td>{{ message.Message }}</td>
+                        <td>{{ message.SentAt|date("%B %d, %Y %I:%M %p") }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('projects.toggle_message', message_id=message.id) }}" style="display:inline;">
+                                <button type="submit" class="btn-open">
+                                    Dismiss
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="separate-div">
+            <h3>User settings</h3>
             <a href="{{ url_for('admin.edit_user', user_name=current_user.id) }}" class="send-btn">Edit Settings</a>
-
+        </div>
+        <h3>Server Load</h3>
     </div>
 {% endif %}
 </div>
-<h3>AI Generation</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Description</th>
-            <th>Link</th>
-            <th>Name</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Text-to-Image generation</td>
-            <td><a href="https://www.google.com">Access</a></td>
-            <td>Stable Diffusion 3.5 Large</td>
-        </tr>
-        <tr>
-            <td>Image-to-3D model generation</td>
-            <td><a href="{{ url_for('projects.three_dee') }}">Access</a></td>
-            <td>Stable Point Aware 3D</td>
-        </tr>
-        <tr>
-            <td><b>Text Generation</b></td>
-            <td>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Usage</th>
-                            <th>Access</th>
-                            <th>Model</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Code Generation</td>
-                            <td><a href="https://www.github.com" target="_blank">Access</a></td>
-                            <td>Qwen3-Coder 30B A3B FP16</td>
-                        </tr>
-                        <tr>
-                            <td>General</td>
-                            <td><a href="https://www.github.com" target="_blank">Access</a></td>
-                            <td>Llama4 Scout 109B Q4_K_M</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<h3>Gaming</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Description</th>
-            <th>Link</th>
-            <th>Name</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Minecraft</td>
-            <td><a href="{{ url_for('projects.mc_server') }}">Access</a></td>
-            <td>Minecraft</td>
-        </tr>
-    </tbody>
-</table>
-<h2>Video Generation</h2>
-<p>In development</p>
+<div class="separate-div">
+    <h3>AI Generation</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Link</th>
+                <th>AI Model</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Image generation (from text)</td>
+                <td><a href="https://www.google.com" target="_blank">In Progress 🏗️🔧⚠️</a></td>
+                <td>Stable Diffusion 3.5 Large</td>
+            </tr>
+            <tr>
+                <td>3D model generation (from image)</td>
+                <td><a href="{{ url_for('projects.three_dee') }}">In Progress 🏗️🔧⚠️</a></td>
+                <td>Stable Point Aware 3D</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="separate-div">
+        <h4>Text Generation</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Usage</th>
+                    <th>Access</th>
+                    <th>AI Model</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Code Generation</td>
+                    <td><a href="https://www.github.com" target="_blank">In Progress 🏗️🔧⚠️</a></td>
+                    <td>Qwen3-Coder 30B A3B FP16</td>
+                </tr>
+                <tr>
+                    <td>General chatting</td>
+                    <td><a href="https://www.github.com" target="_blank">In Progress 🏗️🔧⚠️</a></td>
+                    <td>Llama4 Scout 109B Q4_K_M</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="separate-div">
+    <h3>Gaming</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Link</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Minecraft</td>
+                <td><a href="{{ url_for('projects.mc_server') }}">Access</a></td>
+                <td>Minecraft</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 {% endblock content %}
 

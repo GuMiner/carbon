@@ -5,8 +5,15 @@
 {% endblock css %}
 
 {% block content %}
+<h4>Access</h4>
+<p>
+  Please send me feedback along with your Minecraft user name (or UUID).
+  <br/>
+  With that, I will add you to the server whitelist and send connection details to you.
+</p>
 <h4>Map</h4>
 <h5>Players</h5>
+<small>Refreshes every 30 seconds. </small>
 <div hx-get="{{ url_for('projects.mc_server_players') }}" hx-trigger="load, every 15s" hx-indicator="#playersIndicator"></div>
 <div id="playersIndicator" aria-busy="true" class="htmx-indicator">Loading...</div>
 
