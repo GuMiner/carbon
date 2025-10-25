@@ -59,9 +59,11 @@ What would you like to do today?
 {% else %}
     <div>
         <!-- Feedback submission form -->
-        <h2>Submit Feedback</h2>
-        <h4>Total feedback items: {{ feedback|length }}</h4>
-        <h4>Feedback items unresolved: {{ feedback | selectattr('resolved', 'equalto', false) | list | length }}</h4>
+        <h3>Submit Feedback</h3>
+        <p>
+            Total feedback items: {{ feedback|length }}
+            <blockquote>Feedback items unresolved: {{ feedback | selectattr('resolved', 'equalto', false) | list | length }}</blockquote>
+        </p>
         <form method="POST" action="{{ url_for('projects.index') }}">
             <div>
                 <label for="title">Title:</label>
@@ -102,7 +104,7 @@ What would you like to do today?
             </tbody>
         </table>
         <h3>User settings</h3>
-            <a href="{{ url_for('admin.edit_user', user_name=current_user.id) }}" class="send-btn">Edit User</a>
+            <a href="{{ url_for('admin.edit_user', user_name=current_user.id) }}" class="send-btn">Edit Settings</a>
 
     </div>
 {% endif %}

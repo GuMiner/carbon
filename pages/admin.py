@@ -46,6 +46,7 @@ def index():
 
 
 @admin.route('/users/add', methods=['GET', 'POST'])
+@flask_login.login_required 
 def add_user():
     if not _is_superadmin():
         return render_template("errors/access_denied.html"), 403
@@ -74,6 +75,7 @@ def add_user():
     return render_template('add_user.html')
 
 @admin.route('/users/delete/<int:user_id>', methods=['POST'])
+@flask_login.login_required 
 def delete_user(user_id):
     if not _is_superadmin():
         return render_template("errors/access_denied.html"), 403
@@ -87,6 +89,7 @@ def delete_user(user_id):
     return redirect(url_for('admin.index'))
 
 @admin.route('/users/send-message/<int:user_id>', methods=['GET', 'POST'])
+@flask_login.login_required 
 def send_message(user_id):
     if not _is_superadmin():
         return render_template("errors/access_denied.html"), 403
@@ -112,10 +115,14 @@ def send_message(user_id):
     return render_template('send_message.html', user=user)
 
 @admin.route('/users/edit/<user_name>', methods=['GET', 'POST'])
+@flask_login.login_required 
 def edit_user(user_name):
     conn = get_db_connection()
     user = conn.execute('SELECT * FROM users WHERE UserName = ?', (user_name,)).fetchone()
     
+    if  user_name != flask_login.current_user.id and not _is_superadmin():
+        return render_template("errors/access_denied.html"), 403
+
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -134,7 +141,13 @@ def edit_user(user_name):
         
         conn.commit()
         conn.close()
-        return redirect(url_for('admin.index'))
+
+        if _is_superadmin():
+            return redirect(url_for('admin.index'))
+        else:
+            return redirect(url_for('projects.index'))
     
     conn.close()
-    return render_template('edit_user.html', user=user)
+
+    back_redirect = url_for('admin.index') if _is_superadmin() else url_for('projects.index')
+    return render_template('edit_user.html', user=user, back_redirect=back_redirect)
