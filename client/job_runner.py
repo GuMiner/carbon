@@ -1,9 +1,9 @@
 import base64
-from datetime import datetime
 from enum import Enum
 import json
 import random
 import requests
+import ollama
 import os
 import subprocess
 import time
@@ -15,14 +15,69 @@ JOBS_ENDPOINT = "https://helium24.net/carbon/jobs"
 POLL_INTERVAL_SECONDS = 60
 SHORT_POLL_INTERVAL_SECONDS = 10
 
+class JobStatus(Enum):
+    PASS = 'PASS'
+    FAIL = 'FAIL'
+
 class JobType(Enum):
     IMAGE_GEN_SD35 = "ImageGenSd35"
+    CODING_GEN_QWEN3 = "CodingGenQwen3"
 
-def create_guid_directory(path):
+def _create_guid_directory(path):
     guid = str(uuid.uuid4())
     directory_path = os.path.join(path, guid)
     os.makedirs(directory_path, exist_ok=True)
     return directory_path
+
+def _load_image_from_directory(path):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.lower().endswith('.png'):
+                with open(file, 'rb') as f:
+                    return base64.b64encode(f.read()).decode('utf-8')
+    
+    raise Exception(f"No output image found in {path}")
+
+def execute_coding_gen_qwen3_job(job_data):
+    # Extract the prompt from job_data
+    prompt = job_data.get('prompt', '')
+    
+    # Call the local Ollama server with qwen3-coder model, not using the streaming API.
+    start_time = time.time()
+    try:
+        response = ollama.chat(
+            model='qwen3-coder:30b-a3b-fp16',
+            messages=[
+                {
+                    'role': 'user',
+                    'content': prompt
+                }
+            ]
+        )
+    
+        # Return the generated response
+        return {
+            'status': JobStatus.PASS,
+            'message': 'Job completed successfully',
+            'result_data': { 'response': response['message']['content'] },
+            'duration': time.time() - start_time
+        }
+    
+    except ollama.ResponseError as e:
+        print('Error:', e.error)
+        return {
+            'status': JobStatus.FAIL,
+            'message': f'Job failed: {e.error}',
+            'result_data': {},
+            'duration': time.time() - start_time
+        }
+    except Exception as e:
+        return {
+            'status': 'FAIL',
+            'message': f'Job failed with error: {str(e)}',
+            'result_data': {},
+            'duration': time.time() - start_time
+        }
 
 
 def execute_image_gen_sd35_job(job_data):
@@ -40,8 +95,9 @@ def execute_image_gen_sd35_job(job_data):
     SD35PATH = '/opt/shared/stablediffusion3.5'
     OUTPUT_PATH = f'{SD35PATH}/outputs'
 
+    start_time = time.time()
     try:
-        job_directory = create_guid_directory(OUTPUT_PATH)
+        job_directory = _create_guid_directory(OUTPUT_PATH)
 
         # Avoids AMD ROCM crashing, but still uses the GPU for reasonable inference times
         env = os.environ.copy()
@@ -62,23 +118,27 @@ def execute_image_gen_sd35_job(job_data):
             timeout=600  # 10 minutes timeout
         )
 
-        # TODO get the image, base64 encode it. Also include the seed, as that can be different.
+        image_data = _load_image_from_directory(job_directory)
+
         return {
             'status': 'PASS',
-            'message': 'Job completed successfully',
-            'result_data': base64.b64encode(json.dumps(result.stdout).encode()).decode()
+            'message': f'Job completed successfully: {result.stdout}',
+            'result_data': { 'image': image_data, 'seed': seed },
+            'duration': time.time() - start_time
         }
     except subprocess.TimeoutExpired:
         return {
             'status': 'FAIL',
             'message': 'Job timed out after 10 minutes',
-            'result_data': ''
+            'result_data': {},
+            'duration': time.time() - start_time
         }
     except Exception as e:
         return {
             'status': 'FAIL',
             'message': f'Job failed with error: {str(e)}',
-            'result_data': ''
+            'result_data': {},
+            'duration': time.time() - start_time
         }
 
 def send_job_result(job_id, result_data):
@@ -122,15 +182,17 @@ def process_jobs():
                 job_type = job.get('type')
                 job_data = job.get('data')
 
+                print(f"Processing {JobType} job {job_id}")
                 if job_type == JobType.IMAGE_GEN_SD35:
-                    print(f"Processing {JobType.IMAGE_GEN_SD35} job {job_id}")
                     result = execute_image_gen_sd35_job(job_data)
+                elif job_type == JobType.CODING_GEN_QWEN3:
+                    result = execute_coding_gen_qwen3_job(job_data)
                 else:
                     print(f"Skipping unsupported job type: {job_type}")
                     result = {
                         'status': 'FAIL',
                         'message': 'Unsupported job type',
-                        'result_data': ''
+                        'result_data': {}
                     }
                 
                 send_job_result(job_id, result)
