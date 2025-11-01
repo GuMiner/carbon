@@ -1,0 +1,24 @@
+{% extends '_base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='gen/chat.css') }}">
+{% endblock css %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>Chat Interface</h2>
+    </div>
+    <div class="chat-output" id="chatOutput">
+        <!-- Chat messages will appear here -->
+    </div>
+    <div class="chat-input-area">
+        <textarea id="messageInput" placeholder="Type your message here..."></textarea>
+        <button id="sendButton">Send</button>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='gen/chat.js') }}"></script>
+{% endblock scripts %}

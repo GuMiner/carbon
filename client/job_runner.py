@@ -22,6 +22,7 @@ class JobStatus(Enum):
 class JobType(Enum):
     IMAGE_GEN_SD35 = "ImageGenSd35"
     CODING_GEN_QWEN3 = "CodingGenQwen3"
+    CHAT_LLAMA4_SCOUT = "ChatLlama4Scout"
 
 def _create_guid_directory(path):
     guid = str(uuid.uuid4())
@@ -38,15 +39,12 @@ def _load_image_from_directory(path):
     
     raise Exception(f"No output image found in {path}")
 
-def execute_coding_gen_qwen3_job(job_data):
-    # Extract the prompt from job_data
-    prompt = job_data.get('prompt', '')
-    
-    # Call the local Ollama server with qwen3-coder model, not using the streaming API.
+def _perform_ollama_query(prompt, model):
+    # Call the local Ollama server with model, not using the streaming API.
     start_time = time.time()
     try:
         response = ollama.chat(
-            model='qwen3-coder:30b-a3b-fp16',
+            model=model,
             messages=[
                 {
                     'role': 'user',
@@ -78,6 +76,12 @@ def execute_coding_gen_qwen3_job(job_data):
             'result_data': {},
             'duration': time.time() - start_time
         }
+
+def execute_chat_llama4_job(job_data):
+    return _perform_ollama_query(job_data.get('prompt', ''), 'llama4:scout')
+
+def execute_coding_gen_qwen3_job(job_data):
+    return _perform_ollama_query(job_data.get('prompt', ''), 'qwen3-coder:30b-a3b-fp16')
 
 
 def execute_image_gen_sd35_job(job_data):
@@ -187,6 +191,8 @@ def process_jobs():
                     result = execute_image_gen_sd35_job(job_data)
                 elif job_type == JobType.CODING_GEN_QWEN3:
                     result = execute_coding_gen_qwen3_job(job_data)
+                elif job_type == JobType.CHAT_LLAMA4_SCOUT:
+                    result = execute_chat_llama4_job(job_data)
                 else:
                     print(f"Skipping unsupported job type: {job_type}")
                     result = {

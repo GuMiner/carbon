@@ -1,8 +1,9 @@
 
 import json
 import sqlite3
-from dataclasses import dataclass
 from flask import Blueprint, jsonify, request
+import flask_login
+
 
 jobs = Blueprint('jobs', __name__, url_prefix='/jobs', template_folder='../templates/jobs')
 
@@ -45,6 +46,8 @@ def index():
         })
 
     return jsonify(job_list)
+
+## TODO Add an API to submit jobs, get count of jobs pending (for current user and everyone)
 
 
 @jobs.route('/<job_id>', methods=['POST'])

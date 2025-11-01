@@ -191,11 +191,6 @@ function processImage() {
     alert('Please upload an image first');
     return;
   }
-  
-  if (selectedPoints.length < 3) {
-    alert('Please select at least 3 points');
-    return;
-  }
 
   // Create a canvas to simulate the result
   const canvas = document.createElement('canvas');

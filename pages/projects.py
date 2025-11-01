@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, g
+from flask import Blueprint, render_template, request, g, jsonify
 import flask_login
 from datetime import datetime
 import os
@@ -84,6 +84,7 @@ def index():
 
 
 @projects.route("/toggle_message/<int:message_id>", methods=["POST"])
+@flask_login.login_required
 def toggle_message(message_id):
     conn = sqlite3.connect('data/users.db')
     c = conn.cursor()
@@ -102,6 +103,7 @@ def toggle_message(message_id):
 
 
 @projects.route("/toggle_feedback/<int:feedback_id>", methods=["POST"])
+@flask_login.login_required
 def toggle_feedback(feedback_id):
     conn = sqlite3.connect('data/feedback.db')
     c = conn.cursor()
@@ -122,12 +124,33 @@ def toggle_feedback(feedback_id):
     return "", 204  # No content response
 
 @projects.route("/mc_server")
+@flask_login.login_required
 def mc_server():
     return render_template("mc_server.html")
 
 @projects.route("/image-to-mesh")
+@flask_login.login_required
 def three_dee():
     return render_template("image-to-mesh.html")
+
+@projects.route("/chat")
+@flask_login.login_required
+def chat():
+    return render_template("chat.html")
+
+@projects.route("/chat/send", methods=["POST"])
+@flask_login.login_required
+def send_message():
+    # Get message from request
+    data = request.get_json()
+    message = data.get("message", "")
+    
+    # In a real app, this would be processed by an AI or backend service
+    # For now, we'll simulate a response
+    response = f"Echo: {message}"
+    
+    # Return the response
+    return jsonify({"response": response})
 
 # Update a player's position in the in-memory dictionary
 @projects.route("/mc_server/player", methods=['POST'])
@@ -154,6 +177,7 @@ def mc_server_map_update():
 
 # HTML: List out where everyone is
 @projects.route("/mc_server/players")
+@flask_login.login_required
 def mc_server_players():
     player_pos_text = ["<ul>"]
     for player in player_pos_live_map:
