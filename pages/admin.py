@@ -40,10 +40,48 @@ def index():
     c = conn.cursor()
     c.execute('SELECT M.Message, M.SentAt, U.Name FROM messages M JOIN "users" U on M.UserId = U.Id ORDER BY SentAt DESC')
     messages = c.fetchall()
+    
+    # Fetch access codes
+    c.execute('SELECT * FROM access_codes')
+    access_codes = c.fetchall()
     conn.close()
     
-    return render_template("admin.html", users=users, messages=messages)
+    return render_template("admin.html", users=users, messages=messages, access_codes=access_codes)
 
+@admin.route('/access-codes/add', methods=['GET', 'POST'])
+@flask_login.login_required 
+def add_access_code():
+    if not _is_superadmin():
+        return render_template("errors/access_denied.html"), 403
+
+    if request.method == 'POST':
+        code = request.form['code']
+        group = request.form['group']
+        
+        if not code or not group:
+            return redirect(url_for('admin.index'))
+        
+        conn = get_db_connection()
+        conn.execute('INSERT INTO access_codes (code, [group]) VALUES (?, ?)', (code, group))
+        conn.commit()
+        conn.close()
+        
+        return redirect(url_for('admin.index'))
+    
+    return render_template('add_access_code.html')
+
+@admin.route('/access-codes/delete/<code_id>', methods=['POST'])
+@flask_login.login_required 
+def delete_access_code(code_id):
+    if not _is_superadmin():
+        return render_template("errors/access_denied.html"), 403
+
+    conn = get_db_connection()
+    conn.execute('DELETE FROM access_codes WHERE code = ?', (code_id,))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('admin.index'))
 
 @admin.route('/users/add', methods=['GET', 'POST'])
 @flask_login.login_required 

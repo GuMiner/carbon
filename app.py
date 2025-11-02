@@ -64,6 +64,26 @@ def authenticate_user(username, password):
         return verify_password(password, result[0])
     return False
 
+def validate_access_code(access_code):
+    conn = sqlite3.connect('data/users.db')
+    c = conn.cursor()
+    c.execute("SELECT 1 FROM access_codes WHERE code = ?", (access_code,))
+    result = c.fetchone()
+    conn.close()
+    return result is not None
+
+
+def create_user(username, password, name, email):
+    """Create a new user with hashed password"""
+    hashed_password = base.hash_password(password)
+    conn = sqlite3.connect('data/users.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO users (UserName, PwdHash, Name, Email) VALUES (?, ?, ?, ?)", 
+              (username, hashed_password, name, email))
+    conn.commit()
+    conn.close()
+
+
 def get_user_info(username):
     conn = sqlite3.connect('data/users.db')
     c = conn.cursor()
@@ -137,6 +157,37 @@ def authenticate_post():
             return render_template("authenticate.html", error='User not found')
     else:
         return render_template("authenticate.html", error='Invalid username or password')
+
+
+@app.post("/register")
+def register_post():
+    access_code = request.form['access_code']
+    username = request.form['new_username']
+    password = request.form['new_password']
+    
+    # Validate access code
+    if not validate_access_code(access_code):
+        return render_template("authenticate.html", error='Invalid access code')
+    
+    # Check if username already exists
+    conn = sqlite3.connect('data/users.db')
+    c = conn.cursor()
+    c.execute("SELECT 1 FROM users WHERE UserName = ?", (username,))
+    if c.fetchone():
+        conn.close()
+        return render_template("authenticate.html", error='Username already exists')
+    conn.close()
+    
+    name = request.form['new_name']
+    email = request.form['new_email']
+    
+    try:
+        create_user(username, password, name, email)
+        user = load_user(username)
+        login_user(user)
+        return redirect(url_for('projects.index'))
+    except Exception as e:
+        return render_template("authenticate.html", error='Registration failed')
 
 
 if __name__ == "__main__":

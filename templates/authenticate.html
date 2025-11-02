@@ -13,6 +13,17 @@
         <input type='password' name='password' id='password' placeholder='password'/>
         <input type='submit' name='submit'/>
         </form>
+        
+      <h3>Or register with an access code:</h3>
+      <form action='register' method='POST'>
+        <input type='text' name='access_code' id='access_code' placeholder='access code'/><br><br>
+        <input type='text' name='new_name' id='new_name' placeholder='Name'/><br><br>
+        <input type='text' name='new_email' id='new_email' placeholder='Email'/><br><br>
+        <br/>
+        <input type='text' name='new_username' id='new_username' placeholder='User name for login'/><br><br>
+        <input type='password' name='new_password' id='new_password' placeholder='Password for login'/><br><br>
+        <input type='submit' name='register'/>
+      </form>
     </p>
 </div>
 {% endblock content %}
