@@ -1,0 +1,34 @@
+# This is an example assistant configuration file
+# It is used to define custom AI assistants within Continue
+# Each assistant file can be accessed by selecting it from the assistant dropdown
+
+# To learn more, see the full assistant reference: https://docs.continue.dev/reference
+
+name: FrameworkRemote
+version: 1.0.0
+schema: v1
+
+# Models define which AI models this assistant can use
+models:
+  - name: Qwen3-Coder 30B FP16
+    provider: ollama
+    model: qwen3-coder:30b-a3b-fp16
+    apiBase: http://10.95.1.165:11434
+  - name: Olmo 3.1 32B Instruct Q8
+    provider: ollama
+    model: olmo-3.1:32b-instruct-q8_0
+    apiBase: http://10.95.1.165:11434
+  - name: Olmo 3.1 32B Instruct FP16
+    provider: ollama
+    model: olmo-3.1:32b-instruct-fp16
+    apiBase: http://10.95.1.165:11434
+
+# Context providers define what information the assistant can access
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
