@@ -10,6 +10,10 @@ schema: v1
 
 # Models define which AI models this assistant can use
 models:
+  - name: Qwen3-Coder 30B Q8_0
+    provider: ollama
+    model: qwen3-coder:30b-a3b-q8_0
+    apiBase: http://10.95.1.165:11434
   - name: Qwen3-Coder 30B FP16
     provider: ollama
     model: qwen3-coder:30b-a3b-fp16
