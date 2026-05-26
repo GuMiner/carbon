@@ -1,0 +1,29 @@
+{{ define "main" }}
+<section>
+    <h1>{{ .Title }}</h1>
+    <div class="container" style="text-align: center;">
+        {{ range .Pages }}
+        <article class="project-image-card align-left">
+            <a href="{{ .RelPermalink }}" class="relative-position">
+                <img src="{{ .Params.image }}" alt="{{ .Title }} example" />
+                {{ if strings.Contains .Params.link "github.com" }}
+                <img alt="OnGitHub overlay" src="/projects/OnGitHubOverlay.png" class="github-overlay" />
+                {{ end }}
+            </a>
+            <footer>
+                <div class="grid no-grid-wrap">
+                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                    <div class="align-right">
+                        <small>{{ .Params.date }}</small>
+                    </div>
+                </div>
+                <br />
+                {{ range .Params.tags }}
+                <span class="tag-{{ . | lower }}">{{ . }}</span>
+                {{ end }}
+            </footer>
+        </article>
+        {{ end }}
+    </div>
+</section>
+{{ end }}

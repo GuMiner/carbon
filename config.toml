@@ -6,3 +6,25 @@ enableRobotsTXT = true
 [taxonomies]
 # tag = ""
 # category = ""
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [['\[', '\]'], ['$$', '$$']]
+          inline = [['\(', '\)']]
+          
+[params]
+math = true
+
+[[menus.main]]
+name = "Projects"
+pageRef = "/projects"
+weight = 20
+
+[[menus.main]]
+name = "Simulation"
+pageRef = "/projects/simulation"
+weight = 30
