@@ -1,0 +1,8 @@
+baseURL = 'https://helium24.net/'
+locale = 'en-us'
+title = 'Helium24.net'
+enableRobotsTXT = true
+
+[taxonomies]
+# tag = ""
+# category = ""

@@ -19,3 +19,7 @@ package-lock.json
 static/upload/
 
 data/*.db
+
+# Hugo
+public/
+.hugo_build.lock
