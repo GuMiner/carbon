@@ -1,0 +1,118 @@
+{% extends '_base.html' %}
+
+{% block css %}
+<!--<link rel="stylesheet" href="{{ url_for('static', filename='gen/stats.css') }}">-->
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .delete-btn { background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        .delete-btn:hover { background-color: #d32f2f; }
+        .add-btn { background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; }
+        .add-btn:hover { background-color: #45a049; }
+        .send-btn {
+            background-color: #FF9800;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+        }
+        .send-btn:hover {
+            background-color: #F57C00;
+        }
+    </style>
+{% endblock css %}
+
+{% block content %}
+    <p><a href="{{ url_for('admin.add_user') }}" class="add-btn">Add New User</a></p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.Id }}</td>
+                <td>{{ user.Name }}</td>
+                <td>{{ user.Email }}</td>
+                <td>{{ user.UserName }}</td>
+                <td>
+                <td>
+                    <div class="grid">
+                    <a href="{{ url_for('admin.send_message', user_id=user.Id) }}" class="send-btn" style="margin-left: 10px;">Send Message</a>
+                    <a href="{{ url_for('admin.edit_user',user_name=user.UserName) }}" class="send-btn">Edit User</a>
+                    </div>
+                    <br/>
+                    <form action="{{ url_for('admin.delete_user', user_id=user.Id) }}" method="post" style="display: inline;">
+                        <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h2>All Messages</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>For</th>
+                    <th>Message</th>
+                    <th>Sent At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for message in messages %}
+                <tr>
+                    <td>{{ message.Name }}</td>
+                    <td>{{ message.Message }}</td>
+                    <td>{{ message.SentAt|date("%B %d, %Y %I:%M %p") }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <h2>Add Access Code</h2>
+    <form method="POST" action="{{ url_for('admin.add_access_code') }}">
+        <div>
+            <label for="code">Code:</label>
+            <input type="text" id="code" name="code" required>
+        </div>
+        <div>
+            <label for="group">Group:</label>
+            <input type="text" id="group" name="group" required>
+        </div>
+        <button type="submit">Add Access Code</button>
+    </form>
+    <h2>Access Codes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Group</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for code in access_codes %}
+                <tr>
+                    <td>{{ code.code }}</td>
+                    <td>{{ code.group }}</td>
+                    <td>
+                        <form action="{{ url_for('admin.delete_access_code', code_id=code.code) }}" method="post" style="display: inline;">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this access code?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock scripts %}

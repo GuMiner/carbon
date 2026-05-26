@@ -10,10 +10,12 @@ schema: v1
 
 # Models define which AI models this assistant can use
 models:
-  - name: Qwen3-Coder 30B FP16
-    provider: ollama
-    model: qwen3-coder:30b-a3b-fp16
-    apiBase: http://10.95.1.165:11434
+  - name: Qwen 3.5
+    provider: openai
+    model: "qwen3.5 (images, multilingual, 2026. Alibaba (China))"
+    apiBase: http://10.95.1.165:9292/v1
+    apiKey: llama-swap
+
 
 # Context providers define what information the assistant can access
 context:

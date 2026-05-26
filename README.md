@@ -1,62 +1,12 @@
 # carbon
-A website for tracking background processing operations; and a quarantine zone for AI code generation experiments.
+My personal website, a rewrite of [lithium](https://github.com/guminer) in [Hugo](https://gohugo.io).
 
-# Setup
-## Project creation
-### Python setup
-- Virtual environment
-```bash
-python -m venv .venv
-.venv/Scripts/activate
-```
+For more details, see [History of Helium24](https://helium24.net/history)
 
-- Dependencies
-```bash
-pip install Flask Flask-Assets Flask-Compress Flask-SocketIO flask-login
-pip install watchdog
-pip install cssmin jsmin
-```
+# AI Usage
+To roughly quote [my blog](https://helium24.substack.com/p/why-write-a-blog):
+> One cannot start a new project now without discussing AI.
 
-### Node setup
-- Install packages
-```bash
-npm install
-npm install -g sass
+When I use AI tooling, I will call it out directly. These attributions will either be in the Git commit messages (for refactoring where AI was used), or in the content itself (for when AI content generation was used).
 
-# Consider running 'npm outdated' and 'npm update' to ensure all dependencies are up-to-date.
-```
-
-
-## Development
-```bash
-sass scss/index.scss scss/gen/index.css
-sass scss/mc.scss scss/gen/mc.css
-sass scss/stats.scss scss/gen/stats.css
-sass scss/image-to-mesh.scss scss/gen/image-to-mesh.css
-sass scss/chat.scss scss/gen/chat.css
-esbuild js/index.ts --bundle --outdir=static/gen --sourcemap
-esbuild js/logo.ts --bundle --outdir=static/gen --sourcemap
-esbuild js/mc.ts --bundle --outdir=static/gen --sourcemap
-esbuild js/stats.ts --bundle --outdir=static/gen --sourcemap
-esbuild js/projects.ts --bundle --outdir=static/gen --sourcemap
-esbuild js/image-to-mesh.ts --bundle --outdir=static/gen --sourcemap
-esbuild js/chat.ts --bundle --outdir=static/gen --sourcemap
-
-flask --debug run
-```
-
-## Production release
-```bash
-esbuild js/index.ts --bundle --outdir=static/gen --minify
-esbuild js/logo.ts --bundle --outdir=static/gen --minify
-esbuild js/mc.ts --bundle --outdir=static/gen --minify
-esbuild js/stats.ts --bundle --outdir=static/gen --minify
-esbuild js/projects.ts --bundle --outdir=static/gen --minify
-esbuild js/image-to-mesh.ts --bundle --outdir=static/gen --minify
-esbuild js/chat.ts --bundle --outdir=static/gen --minify
-```
-
-See `Setup.md` for more details on the production server setup.
-
-# Reference
-See `attributions.py` for the listing of components used in this site
+A full discussion on AI and LLM tooling is beyond the scope of this README file. I hope these attributions help in clarifying the content in this repository, while also exemplifying how to accomplish the changes that I have made.

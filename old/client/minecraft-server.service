@@ -1,0 +1,14 @@
+[Unit]
+Description=Minecraft Server
+After=network.target
+
+[Service]
+Type=simple
+User=carbon
+WorkingDirectory=/opt/shared/minecraft
+ExecStart=/usr/bin/python server_layer.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

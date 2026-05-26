@@ -1,0 +1,58 @@
+{% extends '_base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='gen/image-to-mesh.css') }}">
+{% endblock css %}
+
+{% block content %}
+<h4>Image Processor</h4>
+
+<div class="container">
+  <div class="panel">
+    <h5>1. Upload Image</h5>
+    <div id="drop-area" class="drop-area">
+      <i>Drag & drop your image here or click to browse</i>
+      <input type="file" id="fileElem" accept="image/*" class="file-input">
+      <label for="fileElem" class="file-label">Select Image</label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h5>2. Select Main Object</h5>
+    <div id="points-container" class="points-container">
+      <p>Click on the image to select points. Right-click to remove points.</p>
+      <div id="image-container" class="image-container"></div>
+    </div>
+    <div id="points-info" class="points-info"></div>
+  </div>
+
+  <div class="panel">
+    <h5>3. Remove Background</h5>
+    <div class="controls grid">
+      <button id="remove-bg-btn" class="btn btn-primary">Remove Background</button>
+      <p></p>
+      <label class="skip-checkbox">
+        <input type="checkbox" id="skip-bg-removal"> Skip <i>(image already has the background removed)</i>
+      </label>
+    </div>
+    <div id="result-container" class="result-container">
+      <p>Result will appear here after processing</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h5>4. Convert to 3D</h5>
+
+    <div class="submit-section">
+      <button id="submit-btn" class="submit-btn">Submit</button>
+    </div>
+    <div id="gltf-container" class="gltf-container">
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='gen/image-to-mesh.js') }}"></script>
+{% endblock scripts %}

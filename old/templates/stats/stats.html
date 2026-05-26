@@ -1,0 +1,40 @@
+{% extends '_base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='gen/stats.css') }}">
+{% endblock css %}
+
+{% block content %}
+<h1>Stats</h1>
+<p>
+    <div class="info-item">
+        <span class="label">Device Name:</span>
+        <span class="value">Framework Desktop with Ryzen AI MAx 395+ and Radeon 8060S Graphics</span>
+    </div>
+    <div class="info-item">
+        <span class="label">Platform:</span>
+        <span class="value">Fedora 42, Linux 6.16.8-200 x86_64</span>
+    </div>
+    <div class="info-item">
+        <span class="label">Resources:</span>
+        <span class="value">32 CPU cores, 128 GB shared RAM (96 GPU, 32 RAM), 2 TB SSD</span>
+    </div>
+</p>
+
+<div class="chart-controls">
+    <label for="metric-select">Select Metric:</label>
+    <select id="metric-select">
+        <option value="cpu_util">CPU Frequency (Hz)</option>
+        <option value="memory_util">Memory Utilization (%)</option>
+        <option value="disk_util">Disk Utilization (%)</option>
+        <option value="gpu_util">GPU Utilization (%)</option>
+        <option value="temp">Temperature (C) </option>
+    </select>
+</div>
+
+<div id="chart" class="ct-perfect-fourth chart-background"></div>
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='gen/stats.js') }}"></script>
+{% endblock scripts %}

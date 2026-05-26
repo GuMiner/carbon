@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../scss/mc.scss"],
+  "sourcesContent": [".mc-canvas {\r\n  margin: 0px;\r\n  padding: 0px;\r\n  overflow: hidden;\r\n  height: 100%;\r\n  width: 100%;\r\n  display: block;\r\n\r\n  border:1px solid greenyellow;\r\n}\r\n"],
+  "mappings": ";AAAA,CAAA;AACE,UAAA;AACA,WAAA;AACA,YAAA;AACA,UAAA;AACA,SAAA;AACA,WAAA;AAEA,UAAA,IAAA,MAAA;;",
+  "names": []
+}

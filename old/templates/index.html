@@ -1,0 +1,43 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div id="offset-grid" class="grid">
+  <canvas id="glass-canvas" class="glass-canvas"></canvas>
+  <div>
+    <h2>About</h1>
+    <p>
+      <a href="{{ url_for('index') }}">Carbon</a> is a high-power data processing server.
+      <br />
+      This website controls the jobs <b>Carbon</b> executes. 
+    </p>
+    <div class="grid">
+      <div>
+        <h3>Source Code</h3>
+        <p>
+          The source code for this site is in the <a
+            href="https://github.com/GuMiner/carbon">carbon</a>
+          repository.
+        </p>
+        <blockquote>
+          Last updated September 28th, 2025
+        </blockquote>
+      </div>
+      <div>
+        <h3>Implementation</h3>
+        <p>
+          The site is a Python <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> web server, with a
+          variety of other components.
+        <blockquote>
+          See the
+          <a href="{{ url_for('attributions.index') }}">attributions page</a> for more information.
+        </blockquote>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='gen/logo.js') }}"></script>
+{% endblock scripts %}

@@ -1,0 +1,40 @@
+<!-- templates/admin/send_message.html -->
+{% extends '_base.html' %}
+
+{% block css %}
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 20px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        textarea { width: 100%; padding: 8px; box-sizing: border-box; height: 100px; }
+        input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 8px; box-sizing: border-box; }
+        .submit-btn { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        .submit-btn:hover { background-color: #45a049; }
+        .back-btn { background-color: #008CBA; color: white; padding: 10px 20px; text-decoration: none; }
+        .back-btn:hover { background-color: #007B9A; }
+        .user-info { background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    </style>
+{% endblock css %}
+
+{% block content %}
+    <h1>Send Message to User</h1>
+    
+    <div class="user-info">
+        <p><strong>Name:</strong> {{ user.Name }}</p>
+        <p><strong>Email:</strong> {{ user.Email }}</p>
+        <p><strong>Username:</strong> {{ user.UserName }}</p>
+    </div>
+    
+    <form method="post">
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">Send Message</button>
+        <a href="{{ url_for('admin.index') }}" class="back-btn">Back to Users</a>
+    </form>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock scripts %}

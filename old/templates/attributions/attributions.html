@@ -1,0 +1,26 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<h1>Attributions</h1>
+<p>
+    This website was built with a number of technologies ⚙️🔧. 
+</p>
+<p>
+    This isn't necessarily a complete list, but rather details those key technologies that allow this site to function.
+</p>
+<h2>JS/CSS Libraries ☕</h2>
+<ul>
+{% for library in attributions.javaScript %}
+<li><b>{{ library.name }}</b> — <a href="{{ library.link }}">{{ library.link }}</a><ol><li class="circle-bullet">{{ library.details }}</li></ol></li>
+{% endfor %}
+</ul>
+<h2>Python 🐍</h2>
+<ul>
+{% for library in attributions.python %}
+<li><b>{{ library.name }}</b> — <a href="{{ library.link }}">{{ library.link }}</a><ol><li class="circle-bullet">{{ library.details }}</li></ol></li>
+{% endfor %}
+</ul>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock scripts %}
