@@ -21,5 +21,7 @@ static/upload/
 data/*.db
 
 # Hugo
-public/
 .hugo_build.lock
+hugo_stats.json
+public/
+resources/_gen/

@@ -3,6 +3,22 @@ locale = 'en-us'
 title = 'Helium24.net'
 enableRobotsTXT = true
 
+[markup.goldmark.renderer]
+  unsafe = true
+
+[services]
+
+[build]
+  [build.buildStats]
+    enable = true
+
+[security.func]
+  get = {allow = ['.*']}
+
+[sassOptions]
+  [sassOptions.includePaths]
+    _ = "node_modules"
+
 [taxonomies]
 # tag = ""
 # category = ""

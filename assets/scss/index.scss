@@ -1,0 +1,164 @@
+@use "@picocss/pico/scss/pico" with (
+  $enable-responsive-spacings: false,
+  $enable-responsive-typography: false,
+  $enable-semantic-container: false,
+  $enable-classes: true,
+  $modules: (
+    "components/accordion": true,
+    "components/nav": true,
+    "components/card": true,
+    "content/code": true,
+    "forms/input-color": false,
+    "forms/input-date": false,
+    "forms/input-file": false,
+    "forms/input-range": false,
+    "forms/input-search": false,
+    "components/dropdown": false,
+    "components/loading": false,
+    "components/modal": false,
+    "components/progress": false,
+    "components/tooltip": false,
+    "utilities/accessibility": false,
+    "utilities/reduce-motion": false
+  )
+);
+
+// Modified so that the grid with the logo doesn't squish the logo, but also is offset so the logo isn't too big
+// https://github.com/picocss/examples/blob/master/v1-bootstrap-grid/css/pico-bootstrap-grid.css
+@media (min-width: 560px) {
+  #offset-grid {
+    grid-template-columns: minmax(192px, 1fr) 4fr;
+  }
+}
+
+#offset-grid > * {
+  grid-template-columns: 1fr;
+}
+
+// Basic border to make the nav area more visible
+.nav-border {
+  border-style: outset;
+  border-width: 2px;
+  border-color: #bababa;
+  border-radius: 12px;
+  margin-left: 6px;
+}
+
+// Border for broader areas
+.expandable-border {
+  border-style: solid dashed solid dashed;
+  border-width: 2px;
+  border-color: #494b52;
+  border-radius: 6px;
+  padding: 3px 6px 3px 6px;
+}
+
+.video-insert {
+  background-size: cover;
+  overflow: hidden;
+}
+
+base-tag {
+  border-style: solid;
+  border-width: 2px;
+  border-color: #bababa;
+  color: #000;
+  border-radius: 6px;
+  margin: 3px;
+  padding: 3px;
+}
+
+// Project CSS
+.tag-games {
+  @extend base-tag;
+  background: lightgreen;
+}
+
+.tag-simulation {
+  @extend base-tag;
+  background: magenta;
+}
+
+.tag-software {
+  @extend base-tag;
+  background: lightblue;
+}
+
+.tag-lasermill {
+  @extend base-tag;
+  background: lightcoral;
+}
+
+.tag-printer {
+  @extend base-tag;
+  background: chartreuse;
+}
+
+.tag-electronics {
+  @extend base-tag;
+  background: olivedrab;
+}
+
+.tag-hardware {
+  @extend base-tag;
+  background: darkorange;
+}
+
+.tag-mobile {
+  @extend base-tag;
+  background-color: lightgray;
+}
+
+.no-grid-wrap {
+  grid-template-columns: repeat(auto-fit, minmax(0%, 1fr));
+}
+
+@media (min-width: 768px) {
+  .fit-content {
+      grid-template-columns: repeat(auto-fit, minmax(0%, max-content));
+  }
+}
+
+.max-content-height {
+  grid-template-rows: max-content auto;
+}
+
+.project-image-card {
+  width: 352px; // 320 px + 2x16px borders = 352px;
+  display: inline-block; // For auto-wrapping
+}
+
+.github-overlay {
+  position: absolute;
+  top: -147px; // Offset to properly overlay on the project cards
+  left: 0;
+  width: 100%;
+  height:320px;
+  padding: 0px;
+  opacity: 0.7
+}
+
+.align-right {
+  text-align: right;
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.relative-position {
+  position: relative;
+}
+
+.no-space {
+  margin: 0px;
+  padding: 0px;
+}
+
+.circle-bullet {
+  list-style-type: circle;
+}
