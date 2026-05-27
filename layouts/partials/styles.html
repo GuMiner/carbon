@@ -1,2 +1,2 @@
 {{ $css := resources.Get "scss/index.scss" | toCSS }}
-<link rel="stylesheet" href="{{ $css.Permalink }}">
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">

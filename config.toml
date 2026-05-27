@@ -16,8 +16,7 @@ enableRobotsTXT = true
   get = {allow = ['.*']}
 
 [sassOptions]
-  [sassOptions.includePaths]
-    _ = "node_modules"
+  includePaths = ["node_modules"]
 
 [taxonomies]
 # tag = ""
