@@ -13,7 +13,6 @@ node_modules
 # Generated files
 scss/gen/
 static/gen/
-package-lock.json
 
 # Uploaded files
 static/upload/
@@ -25,3 +24,5 @@ data/*.db
 hugo_stats.json
 public/
 resources/_gen/
+
+old/
