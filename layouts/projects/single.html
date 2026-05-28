@@ -12,7 +12,11 @@
     </div>
     </p>
 
+    {{ if strings.Contains .Params.link "github.com" }}
+    <p>This project is hosted on GitHub: <a href="{{ .Params.link }}" target="_blank">{{ .Params.link }}</a></p>
+    {{ else }}
     {{ .Content }}
+    {{ end }}
 </section>
 {{ end }}
 
