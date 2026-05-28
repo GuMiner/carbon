@@ -14,6 +14,53 @@
 
     {{ if strings.Contains .Params.link "github.com" }}
     <p>This project is hosted on GitHub: <a href="{{ .Params.link }}" target="_blank">{{ .Params.link }}</a></p>
+
+    <h2>README</h2>
+    {{ $parts := split .Params.link "/" }}
+    {{ $owner := index $parts 3 }}
+    {{ $repo := trim (index $parts 4) "/" }}
+    <div class="markdown-background">
+      <div id="readme-content" class="markdown-body">Loading README...</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@18.0.4/lib/marked.umd.min.js"></script>
+    <script>
+      (async () => {
+        const el = document.getElementById('readme-content');
+        try {
+          // Fetch repo metadata to get the default branch (main, master, etc.)
+          const repoRes = await fetch(`https://api.github.com/repos/${'{{ $owner }}'}/${'{{ $repo }}'}`);
+          if (!repoRes.ok) throw new Error('Failed to load repo info');
+          const repoData = await repoRes.json();
+          const branch = repoData.default_branch || 'main';
+
+          const res = await fetch(`https://api.github.com/repos/${'{{ $owner }}'}/${'{{ $repo }}'}/readme`);
+          if (!res.ok) throw new Error('Failed to load README');
+          const data = await res.json();
+          let readmeMd = atob(data.content.replace(/\n/g, ''));
+
+          // Fix relative image paths -> raw.githubusercontent.com
+          const rawBase = `https://raw.githubusercontent.com/${'{{ $owner }}'}/${'{{ $repo }}'}/${branch}`;
+          readmeMd = readmeMd.replace(/!\[([^\]]*)\]\((?!https?:\/\/)([^)]+)\)/g, (_, alt, src) => {
+            const path = src.startsWith('/') ? src.slice(1) : src;
+            return `![${alt}](${rawBase}/${path})`;
+          });
+
+          // Fix relative links -> github.com blob view (skip pure anchors like #section)
+          const ghBase = `https://github.com/${'{{ $owner }}'}/${'{{ $repo }}'}/blob/${branch}`;
+          readmeMd = readmeMd.replace(/\[([^\]]*)\]\((?!https?:\/\/)([^)]+)\)/g, (_, text, href) => {
+            if (href.startsWith('#')) return `[${text}](${href})`;
+            const [path, hash] = href.split('#');
+            const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+            return `[${text}](${ghBase}/${cleanPath}${hash ? '#' + hash : ''})`;
+          });
+
+          el.innerHTML = marked.parse(readmeMd);
+        } catch (e) {
+          el.textContent = 'Could not load README.';
+        }
+      })();
+    </script>
     {{ else }}
     {{ .Content }}
     {{ end }}
