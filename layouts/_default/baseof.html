@@ -11,11 +11,9 @@
 </head>
 <body>
     {{ block "header" . }}{{ partial "header.html" . }}{{ end }}
-    
     <main>
-        {{ block "main" . }}{{ end }}
+    {{ block "main" . }}{{ end }}
     </main>
-    
     {{ block "footer" . }}{{ partial "footer.html" . }}{{ end }}
     
     {{ partial "scripts.html" . }}

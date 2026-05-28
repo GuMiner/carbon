@@ -16,7 +16,7 @@ enableRobotsTXT = true
   get = {allow = ['.*']}
 
 [sassOptions]
-  includePaths = ["node_modules"]
+  includePaths = ["C:\\Users\\gusgr\\Desktop\\carbon\\node_modules"]
 
 [taxonomies]
 # tag = ""

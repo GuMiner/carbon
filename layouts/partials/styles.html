@@ -1,2 +1,4 @@
-{{ $css := resources.Get "scss/index.scss" | toCSS }}
+<link href=" https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.classless.min.css " rel="stylesheet">
+
+{{ $css := resources.Get "css/index.css" }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}">
