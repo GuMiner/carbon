@@ -1,0 +1,26 @@
+{{ define "main" }}
+<main class="container">
+  <h1>{{ .Title }}</h1>
+  <p>{{ .Description }}</p>
+
+  {{ if .Params.games }}
+  <div class="grid">
+    {{ range .Params.games }}
+    <div>
+      <a href="{{ .link }}">
+        <h3>{{ .title }}</h3>
+      </a>
+      <p>{{ .description }}</p>
+    </div>
+    {{ end }}
+  </div>
+  {{ end }}
+
+  {{ range .Sections }}
+  <div>
+    <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+    <p>{{ .Description }}</p>
+  </div>
+  {{ end }}
+</main>
+{{ end }}

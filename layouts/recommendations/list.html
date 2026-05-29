@@ -1,0 +1,35 @@
+{{ define "main" }}
+<section>
+    <h1>{{ .Title }}</h1>
+    {{ .Content }}
+
+    {{ range .Params.referenceSets }}
+    <div class="grid project-image-card" style="vertical-align: top;">
+        <div>
+            {{ range .referenceGroups }}
+            <div class="align-center">
+                <b>{{ .title }}</b>
+            </div>
+            <article>
+                <ul>
+                    {{ range .references }}
+                    <li>
+                        {{ .name }}
+                        <br/>
+                        <a href="{{ .link }}">{{ .link }}</a>
+                        {{ if .moreDetails }}
+                        <ul><li>{{ .moreDetails }} -- <a href="{{ .moreDetailsLink }}">Link</a></li></ul>
+                        {{ end }}
+                    </li>
+                    {{ end }}
+                </ul>
+                <div class="align-center">
+                    <small><i>Last Updated {{ .lastUpdated }}</i></small>
+                </div>
+            </article>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+</section>
+{{ end }}

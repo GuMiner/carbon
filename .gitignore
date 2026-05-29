@@ -26,3 +26,5 @@ public/
 resources/_gen/
 
 old/
+
+static/puzzle-data.db

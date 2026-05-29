@@ -1,0 +1,36 @@
+{{ define "main" }}
+<main class="container">
+  <h1>{{ .Title }}</h1>
+
+  <div>
+    <button type="button" id="fullscreenButton" onclick="enterFullscreen()">Enter Fullscreen</button>
+    <button type="button" id="triangleButton" onClick="triangleMode()">Triangle</button>
+    <button type="button" id="simButton" onClick="simMode()">Grid</button>
+    <ul>
+      <li>
+        <button type="button" id="randomizeButton" onClick="randomize()">Randomize</button>
+      </li>
+    </ul>
+  </div>
+  <div id="canvasDiv">
+  </div>
+</main>
+{{ end }}
+
+{{ define "footer" }}
+  {{ partial "footer.html" . }}
+  {{ $traces := resources.Get "ts/traces.ts" }}
+  {{$opts := dict
+    "minify" (cond hugo.IsDevelopment false true)
+    "sourceMap" (cond hugo.IsDevelopment "linked" "none")
+  }}
+  {{ with $traces | js.Build $opts }}
+    {{ if hugo.IsDevelopment }}
+      <script src="{{ .RelPermalink }}"></script>
+    {{ else }}
+      {{ with . | fingerprint }}
+        <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}

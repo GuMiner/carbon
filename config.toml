@@ -31,3 +31,18 @@ weight = 20
 name = "Simulation"
 pageRef = "/projects/simulation"
 weight = 30
+
+[[menus.main]]
+name = "Puzzle Tools"
+pageRef = "/puzzles"
+weight = 35
+
+[[menus.main]]
+name = "Games"
+pageRef = "/games"
+weight = 37
+
+[[menus.main]]
+name = "Recommendations"
+pageRef = "/recommendations"
+weight = 40

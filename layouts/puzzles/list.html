@@ -1,0 +1,232 @@
+{{ define "main" }}
+<main class="container">
+  <details>
+    <summary role="button" class="secondary">Instructions</summary>
+    <div class="grid">
+      <div>
+        <h4>Navigation</h4>
+        <p>
+          Click on tabs to expand and collapse them.
+          <br />
+          Data will remain in each tab if it is collapsed, but will be discarded if the page is refreshed.
+        </p>
+        <h4>Searching</h4>
+        <p>
+          All searches support limited SQL wildcards. Use a '_' for letters which must exist and a '%' as a wildcard.
+          <br />
+          <i>Examples</i>
+        <ul>
+          <li>Find all results which start with 'fish': <b>fish%</b></li>
+          <li>Find all results which contain 'cheese': <b>%cheese%</b></li>
+          <li>Find all single-letter results: <b>_</b></li>
+          <li>Find all two letter results which start with 'a': <b>a_</b></li>
+        </ul>
+        </p>
+      </div>
+      <div>
+        <h4>About</h4>
+        <p>
+          These puzzle tools are built on top several technologies. <br />
+          For more information on those technologies, see the <a href="/recommendations/">attributions page</a>
+        </p>
+
+        <h4>Support</h5>
+          <p>
+            For all support issues, please file an issue on this website's <a href="https://github.com/guminer/carbon/issues">issue
+              tracker page</a>.
+              <blockquote>
+                Thank you very much for helping fix this site 🔧⚙️!</blockquote>
+          </p>
+      </div>
+    </div>
+  </details>
+
+  <!-- Word Search -->
+  <details open class="expandable-border">
+    <summary>Word Search</summary>
+    <div class="grid">
+      <div>
+        <form>
+          <fieldset>
+            Query:
+            <input id="wordSearchQuery" type="text" name="wordQuery" placeholder="" aria-label="InputBase" />
+            <label>
+              <input id="anagramCheckbox" type="checkbox" name="anagrams" />
+              Check for anagrams
+            </label>
+          </fieldset>
+        </form>
+      </div>
+      <form autocomplete="off">
+        <fieldset>
+          <label>
+            Output
+            <div id="foundWords">
+              <textarea readonly></textarea>
+            </div>
+          </label>
+        </fieldset>
+      </form>
+    </div>
+  </details>
+
+  <!-- Crossword Search -->
+  <details class="expandable-border">
+    <summary>Crossword Search</summary>
+    <div class="grid">
+      <div>
+        <form>
+          <fieldset>
+            Query:
+            <input id="crosswordQuery" type="text" name="crosswordQuery" placeholder="" aria-label="InputQuery" />
+          </fieldset>
+        </form>
+      </div>
+      <form autocomplete="off">
+        <fieldset id="foundCrossword">
+          <label>
+            Clues
+            <textarea readonly></textarea>
+          </label>
+          <label>
+            Answers
+            <textarea readonly></textarea>
+          </label>
+        </fieldset>
+      </form>
+    </div>
+  </details>
+
+  <!-- Thesaurus / Homophones -->
+  <details class="expandable-border">
+    <summary>Thesaurus / Homophones</summary>
+    <div class="grid">
+      <div>
+        <form>
+          <fieldset>
+            Query:
+            <input id="wordExtraQuery" type="text" name="wordExtraQuery" placeholder="" aria-label="InputQuery" />
+            <label>
+              <input id="thesaurusRadio" type="radio" name="extraChoice" checked value="Thesaurus" />
+              Thesaurus
+            </label>
+            <label>
+              <input id="homophonesRadio" type="radio" name="extraChoice" value="Homophones" />
+              Homophones
+            </label>
+          </fieldset>
+        </form>
+      </div>
+      <form autocomplete="off">
+        <fieldset>
+          <label>
+            Output
+            <div id="foundExtraWords">
+              <textarea readonly></textarea>
+            </div>
+          </label>
+        </fieldset>
+      </form>
+    </div>
+  </details>
+
+  <!-- Number Conversion -->
+  <details open class="expandable-border">
+    <summary>Number Conversion</summary>
+    <div class="grid">
+      <form autocomplete="off">
+        <fieldset>
+          <label>
+            Input
+            <input id="numbersToConvert" type="text" name="numberInput" placeholder="Enter numbers here"
+              aria-label="InputNumbers" />
+          </label>
+        </fieldset>
+      </form>
+      <form autocomplete="off">
+        <fieldset>
+          <label>
+            Output
+            <textarea id="convertedNumbers" readonly></textarea>
+          </label>
+        </fieldset>
+      </form>
+      <div>
+        Input base:
+        <input id="inputBase" type="number" name="base" placeholder="(10)" aria-label="InputBase" />
+        Delimiter
+        <input id="inputDelimiter" type="text" name="delimiter" placeholder="(space)" aria-label="Delimiter" />
+      </div>
+    </div>
+  </details>
+
+  <!-- Substitution Codes -->
+  <details class="expandable-border">
+    <summary>Substitution Codes</summary>
+    <div class="grid">
+      <form autocomplete="off">
+        <fieldset>
+          <label>
+            Input
+            <input id="numbersToConvertSubst" type="text" name="numberInput" placeholder="Enter numbers here"
+              aria-label="InputNumbers" />
+          </label>
+        </fieldset>
+      </form>
+      <form autocomplete="off">
+        <fieldset>
+          <label>
+            Output
+            <textarea id="convertedNumbersSubst" readonly></textarea>
+          </label>
+        </fieldset>
+      </form>
+      <div>
+        <input id="inputDelimiterSubst" type="text" name="delimiter" placeholder="(Delimiter: space)" aria-label="Delimiter" />
+        Enable A (1) to Z (26) Conversion
+        <input id="AZConvertSubst" type="checkbox" name="az" aria-label="A1-Z26-Enable" checked />
+        <br/>
+        Enable Rotation conversion
+        <input id="rotateSubst" type="checkbox" name="rot" aria-label="ROT-Enable" checked />
+        <input id="rotateAmount" type="number" name="base" placeholder="(Rotate by: 13)" aria-label="ROT-Amount" />
+        Enable number to ASCII Conversion
+        <input id="ASCIIConvertSubst" type="checkbox" name="ascii" aria-label="ASCII-Enable" checked />
+        <br/>
+        Enable Morse code conversion
+        <input id="MorseConvertSubst" type="checkbox" name="morse" aria-label="Morse-Enable" checked />
+        <br/>
+        <div class="grid">
+          <input id="MorseDot" type="text" name="morseDot" placeholder="Morse Dot: ." aria-label="Delimiter" />
+          <input id="MorseDash" type="text" name="morseDash" placeholder="Morse Dash: -" aria-label="Delimiter" />
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Useful Links -->
+  <details class="expandable-border">
+    <summary>Useful Links</summary>
+    {{ range .Page.Params.references }}
+      {{ partial "puzzles/links.html" . }}
+    {{ end }}
+  </details>
+</main>
+{{ end }}
+
+{{ define "footer" }}
+  {{ partial "footer.html" . }}
+  {{ $puzzle := resources.Get "ts/puzzle.ts" }}
+  {{$opts := dict
+    "minify" (cond hugo.IsDevelopment false true)
+    "sourceMap" (cond hugo.IsDevelopment "linked" "none")
+  }}
+  {{ with $puzzle | js.Build $opts }}
+    {{ if hugo.IsDevelopment }}
+      <script src="{{ .RelPermalink }}"></script>
+    {{ else }}
+      {{ with . | fingerprint }}
+        <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></script>
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
