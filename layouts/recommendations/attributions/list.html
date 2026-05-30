@@ -3,16 +3,9 @@
     <h1>{{ .Title }}</h1>
     {{ .Content }}
 
-    <h2>JS/CSS Libraries ☕</h2>
+    <h2>JS/CSS Libraries</h2>
     <ul>
         {{ range .Params.attributions.javaScript }}
-        <li><b>{{ .name }}</b> — <a href="{{ .link }}">{{ .link }}</a><ol><li class="circle-bullet">{{ .details }}</li></ol></li>
-        {{ end }}
-    </ul>
-
-    <h2>Python 🐍</h2>
-    <ul>
-        {{ range .Params.attributions.python }}
         <li><b>{{ .name }}</b> — <a href="{{ .link }}">{{ .link }}</a><ol><li class="circle-bullet">{{ .details }}</li></ol></li>
         {{ end }}
     </ul>
