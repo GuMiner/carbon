@@ -1,9 +1,12 @@
 ---
 title: "Games"
-description: "Browser-based games and interactive demos."
+description: "This section is for browser-based games and interactive demos."
 
 games:
-  - title: WebGPU Traces
+  - name: Blocks
+    image: /game/icons/blocks.png
+    link: /games/blocks/
+  - name: Web GPU Experiements 
+    image: /game/icons/traces.png
     link: /games/traces/
-    description: Conway's Game of Life rendered with WebGPU compute shaders.
 ---

@@ -4,22 +4,19 @@
   <p>{{ .Description }}</p>
 
   {{ if .Params.games }}
-  <div class="grid">
+  <div class="container" style="text-align: center;">
     {{ range .Params.games }}
-    <div>
-      <a href="{{ .link }}">
-        <h3>{{ .title }}</h3>
+    <article class="project-image-card align-left">
+      <a href="{{ .link }}" class="relative-position">
+        <img src="{{ .image }}" alt="{{ .name }} example" />
       </a>
-      <p>{{ .description }}</p>
-    </div>
+      <footer>
+        <div class="grid no-grid-wrap">
+          <a href="{{ .link }}">{{ .name }}</a>
+        </div>
+      </footer>
+    </article>
     {{ end }}
-  </div>
-  {{ end }}
-
-  {{ range .Sections }}
-  <div>
-    <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
-    <p>{{ .Description }}</p>
   </div>
   {{ end }}
 </main>

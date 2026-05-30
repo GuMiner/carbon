@@ -1,0 +1,17 @@
+{{ define "main" }}
+<main class="container">
+  <h1>{{ .Title }}</h1>
+  <p>{{ .Description }}</p>
+
+  <div>
+    <button type="button" id="fullscreenButton" onclick="enterFullscreen()">Enter Fullscreen</button>
+  </div>
+  <div id="canvasDiv">
+  </div>
+</main>
+{{ end }}
+
+{{ define "footer" }}
+  {{ partial "footer.html" . }}
+  <!-- BabylonJS and game scripts go here -->
+{{ end }}

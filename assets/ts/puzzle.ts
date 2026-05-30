@@ -8,11 +8,11 @@
 function loadSqlJs(): Promise<any> {
     return new Promise((resolve, reject) => {
         const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js";
+        script.src = "https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm.min.js";
         script.onload = () => {
             // sql.js exposes initSqlJs on window when loaded from CDN
             (window as any).initSqlJs({
-                locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/${file}`
+                locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
             }).then(resolve).catch(reject);
         };
         script.onerror = () => reject(new Error("Failed to load sql.js"));
