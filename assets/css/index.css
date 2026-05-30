@@ -1,13 +1,34 @@
+/* Grid layout for the home page — PicoCSS v2 dropped the .grid class from v1 bootstrap-grid addon */
+.grid {
+ display: grid;
+ gap: 1rem;
+ align-items: start;
+}
+
 /* Modified so that the grid with the logo doesn't squish the logo, but also is offset so the logo isn't too big
  https://github.com/picocss/examples/blob/master/v1-bootstrap-grid/css/pico-bootstrap-grid.css */
+#offset-grid {
+ display: grid;
+ gap: 1rem;
+ align-items: start;
+}
+
 @media (min-width: 560px) {
-  #offset-grid {
-    grid-template-columns: minmax(192px, 1fr) 4fr;
-  }
+ #offset-grid {
+   grid-template-columns: minmax(192px, 1fr) 4fr;
+ }
 }
 
 #offset-grid > * {
-  grid-template-columns: 1fr;
+ grid-template-columns: 1fr;
+}
+
+/* Two-column layout for Source Code / Implementation and Details sections */
+@media (min-width: 768px) {
+ #offset-grid .grid,
+ div > .grid {
+   grid-template-columns: 1fr 1fr;
+ }
 }
 
 /* Basic border to make the nav area more visible */
