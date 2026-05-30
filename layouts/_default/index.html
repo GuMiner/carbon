@@ -1,13 +1,64 @@
 {{ define "main" }}
-<section>
-    <h1>{{ .Title }}</h1>
-    <div>{{ .Content }}</div>
-    
-    <h2>Recent Posts</h2>
+<div id="offset-grid" class="grid">
+  <img src="/icons/favicon-192.png" alt="Logo image" />
+  <div>
+    <h1>About</h1>
+    <p>
+      <a href="/">Helium24.net</a> is my personal website! You can find project writeups, web-based tooling, and many
+      other interesting things here.
+      <br />
+      Use the navigation bar at the top to investigate most of this site.
+    </p>
+    <div class="grid">
+      <div>
+        <h3>Source Code</h3>
+        <p>
+          The source code for this site is in the <a
+            href="https://github.com/GuMiner/carbon">Github/GuMiner/carbon</a>
+          repository.
+        <blockquote>
+          For the historical C# version of this site, see <a
+            href="https://github.com/guminer/helium24">Github/GuMiner/Helium24</a>.
+        </blockquote>
+        </p>
+      </div>
+      <div>
+        <h3>Implementation</h3>
+        <p>
+          The site is a <a href="https://gohugo.io">Hugo</a> static website, built from Markdown content and Go templates.
+        <blockquote>
+          See the <a href="/recommendations/attributions/">attributions page</a> for more information.
+        </blockquote>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h2>Details</h2>
+  <p>
+    You may also be interested in the following:
+  </p>
+  <div class="grid">
     <ul>
-        {{ range .Site.RegularPages.ByDate.Reverse }}
-        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-        {{ end }}
+      <li><b>More software I write</b>
+        <p><a href="https://github.com/guminer">GitHub Profile</a></p>
+      </li>
+      <li><b>Senior Design Project</b></li>
+      <p>
+        <a href="/aboutme/NuclearEngineeringSeniorDesign.pdf">PDF Download (3.5 MB)</a>
+        <small>University of Wisconsin -- Madison, 2014</small>
+      </p>
     </ul>
-</section>
+    <ul>
+      <li><b>Work and Employment Details</b>
+        <p><a href="https://www.linkedin.com/in/gustave-granroth-helium24/">LinkedIn Profile</a></p>
+      </li>
+      <li><b>How to get in contact</b>
+        <p>See <a href="https://www.linkedin.com/in/gustave-granroth-helium24/">LinkedIn Profile</a></p>
+      </li>
+    </ul>
+  </div>
+</div>
 {{ end }}

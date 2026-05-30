@@ -1,6 +1,4 @@
 ---
-title: "Welcome"
-description: "My Hugo site"
+title: "Helium24.net"
+description: "My personal website featuring project writeups, web-based tooling, and more."
 ---
-
-This is the home page content!
