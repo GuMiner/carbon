@@ -1,0 +1,18 @@
+/opt/shared/minecraft/unmined-cli_0.19.49-dev_linux-x64/unmined-cli 
+
+if os.path.exists(IMAGE_PATH):
+    os.remove(IMAGE_PATH)
+result = subprocess.run([MAP_EXPORTER_PATH, 'image', 'render', '-c',
+                        f'--world={WORLD_PATH}', f'--output={IMAGE_PATH}'], capture_output=True, text=True)
+_process_map_update(result)
+
+        _send_command("/list", process)
+        _send_command('/data get entity GuMiner Pos', process)
+        _send_command('/data get entity huttyblue Pos', process)
+        _send_command('/data get entity SolarThor Pos', process)
+
+ /etc/systemd/system/minecraft-server.service
+ systemctl daemon-reload
+ systemctl status minecraft-server.service
+
+  journalctl -u minecraft-server.service

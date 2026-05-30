@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark" />
     <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} - {{ .Site.Title }}{{ end }}</title>
     <meta name="description" content="{{ if .IsHome }}{{ .Site.Params.description }}{{ else }}{{ .Description }}{{ end }}">
     
+    <meta name="google-site-verification" content="cScukpQX-5ha2CjIpVu6s6-AJACov7BwotGqxVDyjLE" />
+    <meta name="msvalidate.01" content="54833F3A9AB9EF94EABEF305F306DFED" />
+
     {{ partial "favicons.html" . }}
     {{ partial "styles.html" . }}
 </head>

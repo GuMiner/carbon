@@ -2,7 +2,7 @@
 <section>
     <p>
     <div class="grid">
-      <div><b>{{ .Title }}</b> -- {{ .Params.date }}</div>
+      <div><b>{{ .Title }}</b> -- {{ .Date.Format "Jan 2006" }}</div>
       <div class="align-right">
         {{ range .Params.tags }}
         <span class="tag-{{ . | lower }} align-right">{{ . }}</span>

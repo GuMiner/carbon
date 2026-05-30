@@ -14,7 +14,7 @@
                 <div class="grid no-grid-wrap">
                     <a href="{{ .RelPermalink }}">{{ .Title }}</a>
                     <div class="align-right">
-                        <small>{{ .Params.date }}</small>
+                        <small>{{ .Date.Format "Jan 2006" }}</small>
                     </div>
                 </div>
                 <br />
