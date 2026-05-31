@@ -13,202 +13,260 @@
 
 {{ define "footer" }}
   {{ partial "footer.html" . }}
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/+esm" } }
+  </script>
   <script type="module">
-    import * as BABYLON from 'https://cdn.jsdelivr.net/npm/@babylonjs/core@9.10.1/+esm';
-    import HavokPhysics from 'https://cdn.jsdelivr.net/npm/@babylonjs/havok@1.3.12/+esm';
-
-    async function getInitializedHavok() {
-      return await HavokPhysics({
-        locateFile: (path) => '/game/' + path
-      });
-    }
+    import * as THREE from 'three';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/controls/OrbitControls.js';
+    import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/+esm';
 
     var canvasDiv = null;
-    var globalEngine = null;
+    var renderer = null;
+    var world = null;
 
     class App {
-      make_blocks(scene, shadowGenerator) {
-        const woodMaterial = new BABYLON.StandardMaterial("Wood", scene);
-        woodMaterial.specularColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+      make_blocks(dirLight) {
+        const woodTexture = new THREE.TextureLoader().load('/game/wood.jpg');
+        this.woodMaterial = new THREE.MeshStandardMaterial({ map: woodTexture, roughness: 0.8 });
 
-        let woodTexture = new BABYLON.Texture('/game/wood.jpg', scene);
-        woodMaterial.diffuseTexture = woodTexture;
+        // Configure shadow camera frustum to cover the tower area
+        const d = 60;
+        dirLight.shadow.camera.left = -d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = -d;
+        dirLight.shadow.camera.near = 1;
+        dirLight.shadow.camera.far = 200;
 
-        var blockLength = 10;
-        var blockWidth = blockLength / 3;
-        var blockHeight = blockLength / 4;
+        const blockLength = 10;
+        const blockWidth = blockLength / 3;
+        const blockHeight = blockLength / 4;
 
-        const shape = new BABYLON.PhysicsShapeBox(
-          new BABYLON.Vector3(0, 0, 0), new BABYLON.Quaternion(0, 0, 0, 1),
-          new BABYLON.Vector3(blockWidth, blockHeight, blockLength),
-          scene);
-        shape.material = { friction: 0.2, restitution: 0.3 };
+        const halfExtents = new CANNON.Vec3(blockWidth / 2, blockHeight / 2, blockLength / 2);
+        const shape = new CANNON.Box(halfExtents);
+        // friction/restitution set per body below
 
-        var blockSpacing = 0.1;
-        var blockName = "block-";
+        const blockSpacing = 0.1;
+        const towerHeight = 10;
 
-        var towerHeight = 10;
+        for (let i = 0; i < towerHeight * 3; i++) {
+          const geometry = new THREE.BoxGeometry(blockWidth, blockHeight, blockLength);
+          const box = new THREE.Mesh(geometry, this.woodMaterial);
 
-        for (var i = 0; i < towerHeight * 3; i++) {
-          var box = BABYLON.MeshBuilder.CreateBox(blockName + i.toString(), { width: blockWidth, height: blockHeight, depth: blockLength }, scene);
-          box.position.y += blockHeight / 2 + blockSpacing;
-          box.position.y += (blockHeight + blockSpacing) * Math.floor(i / 3);
+          let yOff = blockHeight / 2 + blockSpacing;
+          yOff += (blockHeight + blockSpacing) * Math.floor(i / 3);
+          box.position.y = yOff;
 
           if (i % 6 > 2) {
-            box.rotate(BABYLON.Vector3.Up(), Math.PI / 2);
-            box.position.z += (blockWidth + blockSpacing) * (i % 3) - (blockWidth + blockSpacing);
+            box.rotation.y = Math.PI / 2;
+            box.position.z = (blockWidth + blockSpacing) * (i % 3) - (blockWidth + blockSpacing);
           } else {
-            box.position.x += (blockWidth + blockSpacing) * (i % 3) - (blockWidth + blockSpacing);
+            box.position.x = (blockWidth + blockSpacing) * (i % 3) - (blockWidth + blockSpacing);
           }
 
-          box.material = woodMaterial;
-          box.receiveShadows = true;
-          shadowGenerator.addShadowCaster(box);
+          box.castShadow = true;
+          box.receiveShadow = true;
+          this.scene.add(box);
 
-          const boxBody = new BABYLON.PhysicsBody(box, BABYLON.PhysicsMotionType.DYNAMIC, false, scene);
-          boxBody.shape = shape;
-          boxBody.setMassProperties({ mass: 1 });
+          // physics body
+          const body = new CANNON.Body({
+            mass: 1,
+            shape: shape,
+            material: new CANNON.Material({ friction: 0.2, restitution: 0.3 })
+          });
+          body.position.copy(new CANNON.Vec3(box.position.x, box.position.y, box.position.z));
+
+          // Match rotation: if rotated around Y by PI/2
+          if (i % 6 > 2) {
+            const q = new CANNON.Quaternion();
+            q.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI / 2);
+            body.quaternion.copy(q);
+          }
+
+          world.addBody(body);
+          this.bodies.push({ mesh: box, body });
         }
       }
 
-      make_ground(scene) {
-        var ground_size = 200;
-        var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: ground_size, height: ground_size }, scene);
-        ground.receiveShadows = true;
-        ground.isPickable = false;
+      make_ground() {
+        const groundSize = 200;
+        const geometry = new THREE.PlaneGeometry(groundSize, groundSize);
+        geometry.rotateX(-Math.PI / 2); // face up
 
-        const groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
-        ground.material = groundMaterial;
+        const groundTexture = new THREE.TextureLoader().load('/game/checkerboard_basecolor.png');
+        const groundMaterial = new THREE.MeshStandardMaterial({ map: groundTexture, color: 0xb30000 });
+        const ground = new THREE.Mesh(geometry, groundMaterial);
+        ground.receiveShadow = true;
+        this.scene.add(ground);
 
-        let groundTexture = new BABYLON.Texture('/game/checkerboard_basecolor.png', scene);
-        groundMaterial.diffuseColor = new BABYLON.Color3(0.7, 0, 0);
-        groundMaterial.diffuseTexture = groundTexture;
-
-        const shape = new BABYLON.PhysicsShapeBox(
-          new BABYLON.Vector3(0, 0, 0), new BABYLON.Quaternion(0, 0, 0, 1),
-          new BABYLON.Vector3(ground_size, 0.01, ground_size),
-          scene);
-
-        const boxBody = new BABYLON.PhysicsBody(ground, BABYLON.PhysicsMotionType.STATIC, false, scene);
-        boxBody.shape = shape;
-        boxBody.setMassProperties({ mass: 1 });
-      }
-
-      async createSceneAsync(engine, canvas) {
-        var scene = new BABYLON.Scene(engine);
-        scene.autoClear = false;
-        scene.autoClearDepthAndStencil = false;
-
-        var gravityVector = new BABYLON.Vector3(0, -9.81, 0);
-        var physicsPlugin = new BABYLON.HavokPlugin(true, await getInitializedHavok());
-        scene.enablePhysics(gravityVector, physicsPlugin);
-
-        var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2.5, Math.PI / 2.5, 30, new BABYLON.Vector3(0, 10, 0), scene);
-        camera.upperBetaLimit = Math.PI / 2 - 0.05;
-        camera.lowerRadiusLimit = 10;
-        camera.upperRadiusLimit = 80;
-        camera.attachControl(canvas, true);
-
-        scene.cameraToUseForPointers = camera;
-
-        var sceneLight = new BABYLON.DirectionalLight("dLight", new BABYLON.Vector3(-1, -1, -0.5).normalize(), scene);
-        var ambientLight = new BABYLON.HemisphericLight("hLight", new BABYLON.Vector3(0, 1, 1), scene);
-        ambientLight.intensity = 0.4;
-
-        var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
-        sphere.position.y += 0.5;
-
-        sceneLight.autoUpdateExtends = true;
-        sceneLight.autoCalcShadowZBounds = true;
-
-        const shadowGenerator = new BABYLON.ShadowGenerator(1024, sceneLight);
-        shadowGenerator.usePoissonSampling = true;
-
-        this.make_blocks(scene, shadowGenerator);
-        this.make_ground(scene);
-
-        var skyboxTexture = new BABYLON.CubeTexture("/game/skybox/TropicalSunnyDay", scene);
-        scene.createDefaultSkybox(skyboxTexture, false, 700);
-
-        return scene;
+        // physics ground (static box)
+        const halfExtents = new CANNON.Vec3(groundSize / 2, 0.01, groundSize / 2);
+        const shape = new CANNON.Box(halfExtents);
+        const body = new CANNON.Body({ mass: 0 }); // static
+        body.addShape(shape);
+        body.position.set(0, -0.01, 0);
+        world.addBody(body);
       }
 
       constructor() {
         canvasDiv = document.getElementById("canvasDiv");
-        var canvas = document.createElement("canvas");
+        const canvas = document.createElement("canvas");
         canvas.style.width = "100%";
         canvas.style.height = "100%";
         canvas.id = "gameCanvas";
         canvasDiv.appendChild(canvas);
 
-        var engine = new BABYLON.Engine(canvas, true, null, true);
-        globalEngine = engine;
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        this.createSceneAsync(engine, canvas).then((scene) => {
-          window.addEventListener("keydown", (ev) => {
-            if (ev.key === 'p') {
-              if (scene.debugLayer.isVisible()) {
-                scene.debugLayer.hide();
-              } else {
-                scene.debugLayer.show();
-              }
-            } else if (ev.key === 'o') {
-              if (scene.forceWireframe) {
-                scene.forceWireframe = false;
-              } else {
-                scene.forceWireframe = true;
-              }
+        this.scene = new THREE.Scene();
+
+        // Physics world
+        world = new CANNON.World({ gravity: new CANNON.Vec3(0, -9.81, 0) });
+        world.broadphase = new CANNON.SAPBroadphase(world);
+
+        this.bodies = [];
+
+        // Camera
+        const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 2000);
+        camera.position.set(30 * Math.sin(Math.PI / 2.5) * Math.cos(Math.PI / 2.5), 30 * Math.sin(Math.PI / 2.5), 30 * Math.cos(Math.PI / 2.5));
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 10, 0);
+        controls.maxPolarAngle = Math.PI / 2 - 0.05;
+        controls.minDistance = 10;
+        controls.maxDistance = 80;
+        controls.update();
+
+        // Lights
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.position.set(-1, -1, -0.5).normalize().multiplyScalar(50);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 1024;
+        dirLight.shadow.mapSize.height = 1024;
+        this.scene.add(dirLight);
+
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4);
+        this.scene.add(hemiLight);
+
+        // Shadow helper sphere (invisible, for debug)
+        const sphereGeo = new THREE.SphereGeometry(0.5, 16, 16);
+        const sphereMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+        const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+        sphere.position.y = 0.5;
+        this.scene.add(sphere);
+
+        // Skybox
+        const loader = new THREE.CubeTextureLoader();
+        const skyboxTexture = loader.load([
+          '/game/skybox/TropicalSunnyDay_px.jpg',
+          '/game/skybox/TropicalSunnyDay_nx.jpg',
+          '/game/skybox/TropicalSunnyDay_py.jpg',
+          '/game/skybox/TropicalSunnyDay_ny.jpg',
+          '/game/skybox/TropicalSunnyDay_pz.jpg',
+          '/game/skybox/TropicalSunnyDay_nz.jpg'
+        ]);
+        this.scene.background = skyboxTexture;
+
+        // Build scene objects
+        this.make_blocks(dirLight);
+        this.make_ground();
+
+        // Indicator point for hover feedback
+        const indicatorGeo = new THREE.SphereGeometry(1, 16, 16);
+        const indicatorMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.7 });
+        const indicatorPoint = new THREE.Mesh(indicatorGeo, indicatorMat);
+        indicatorPoint.visible = false;
+        this.scene.add(indicatorPoint);
+
+        // Raycaster for pointer interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        renderer.domElement.addEventListener('click', (evt) => {
+          mouse.x = (evt.offsetX / renderer.domElement.clientWidth) * 2 - 1;
+          mouse.y = -(evt.offsetY / renderer.domElement.clientHeight) * 2 + 1;
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(this.scene.children);
+          for (const hit of intersects) {
+            // Find the physics body corresponding to this mesh
+            const pair = this.bodies.find(b => b.mesh === hit.object);
+            if (pair) {
+              const impulse = new CANNON.Vec3(0, 5, 0);
+              const point = new CANNON.Vec3(hit.point.x, hit.point.y, hit.point.z);
+              pair.body.applyImpulse(impulse, point);
             }
-          });
+          }
+        });
 
-          var indicatorPoint = BABYLON.MeshBuilder.CreateSphere(
-            "indicatorPoint",
-            { diameter: 2 },
-            scene
-          );
-          indicatorPoint.isVisible = false;
-          var indicatorPointMat = new BABYLON.StandardMaterial(
-            "indicatorPointMat",
-            scene
-          );
-          indicatorPointMat.emissiveColor = new BABYLON.Color3(0, 1, 0);
-          indicatorPointMat.alpha = 0.7;
-          indicatorPoint.material = indicatorPointMat;
-          indicatorPoint.isPickable = false;
+        renderer.domElement.addEventListener('mousemove', (evt) => {
+          mouse.x = (evt.offsetX / renderer.domElement.clientWidth) * 2 - 1;
+          mouse.y = -(evt.offsetY / renderer.domElement.clientHeight) * 2 + 1;
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(this.scene.children);
 
-          scene.onPointerPick = (evt, pickInfo) => {
-            pickInfo.pickedMesh.physicsBody.applyImpulse(new BABYLON.Vector3(0, 5, 0), pickInfo.pickedPoint);
-          };
+          if (intersects.length > 0) {
+            indicatorPoint.visible = true;
+            indicatorPoint.position.copy(intersects[0].point);
+          } else {
+            indicatorPoint.visible = false;
+          }
+        });
 
-          scene.onPointerMove = (evt, pickInfo) => {
-            var hit = false;
-            var hitPos = null;
-
-            const pickInfoId = scene.pick(scene.pointerX, scene.pointerY);
-            hit = pickInfoId.hit;
-            hitPos = pickInfoId.pickedPoint;
-
-            if (hit) {
-              indicatorPoint.isVisible = true;
-              indicatorPoint.position.copyFrom(hitPos);
+        // Keyboard shortcuts for wireframe toggle
+        window.addEventListener("keydown", (ev) => {
+          if (ev.key === 'o') {
+            if (this.woodMaterial) {
+              this.woodMaterial.wireframe = !this.woodMaterial.wireframe;
             }
-          };
+          }
+        });
 
-          engine.runRenderLoop(() => {
-            scene.render();
-          });
+        // Animation loop with physics step
+        const clock = new THREE.Clock();
+        const animate = () => {
+          requestAnimationFrame(animate);
+          const dt = clock.getDelta();
+
+          world.step(1 / 60, dt, 3);
+
+          for (const pair of this.bodies) {
+            pair.mesh.position.copy(pair.body.position);
+            pair.mesh.quaternion.copy(pair.body.quaternion);
+          }
+
+          controls.update();
+          renderer.render(this.scene, camera);
+        };
+        animate();
+
+        // Handle resize
+        window.addEventListener("resize", () => {
+          const w = canvas.clientWidth;
+          const h = canvas.clientHeight;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
         });
       }
     }
 
     function enterFullscreen() {
-      globalEngine.switchFullscreen(false);
-      globalEngine.resize(true);
+      if (renderer && renderer.domElement) {
+        renderer.domElement.requestFullscreen().then(() => {
+          const canvas = renderer.domElement;
+          const w = canvas.clientWidth;
+          const h = canvas.clientHeight;
+          renderer.setSize(w, h);
+        });
+      }
     }
 
     window.enterFullscreen = enterFullscreen;
 
     window.addEventListener('load', () => { new App(); });
-    window.addEventListener("resize", () => { globalEngine.resize(true); });
   </script>
 {{ end }}

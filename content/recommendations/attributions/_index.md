@@ -4,12 +4,15 @@ description: "Technologies used to build this website."
 
 attributions:
   javaScript:
-    - name: "BabylonJS"
-      link: "https://www.babylonjs.com/"
+    - name: "Three.JS"
+      link: "https://threejs.org/"
       details: "3D WebGL graphics"
     - name: "WebGPU"
       link: "https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API"
       details: "3D WebGPU (more modern) graphics"
+    - name: "Cannon.JS"
+      link: "https://schteppe.github.io/cannon.js/"
+      details: "3D physics engine"
     - name: "Pico CSS"
       link: "https://picocss.com/"
       details: "Small CSS styling library"
